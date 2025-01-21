@@ -1,16 +1,8 @@
 import { registerRootComponent } from "expo";
 import * as React from "react";
-import { DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import { Provider as PaperProvider } from "react-native-paper";
+import { theme } from "./src/styles/theme";
 import App from "./App";
-
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#5DA5CD",
-    secondary: "#81AC52",
-  },
-};
 
 function Main() {
   return (
