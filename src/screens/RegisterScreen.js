@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import {
   HelperText,
@@ -9,10 +9,13 @@ import {
 } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { registerUser } from "../../services/auth";
+import { Context } from "../../AppContext";
+import storage from "../../services/storage.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
-  password: Yup.string().required().min(4).label("Password"),
+  password: Yup.string().required().min(6).label("Password"),
   confirmPassword: Yup.string()
     .required()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
@@ -21,6 +24,28 @@ const validationSchema = Yup.object().shape({
 
 const RegisterScreen = ({ navigation }) => {
   const theme = useTheme();
+  const [state, setState] = useContext(Context);
+
+  console.log(" REGISTER STATE: ", state);
+
+  const handleRegister = async ({ email, password }) => {
+    try {
+      setState({ ...state, loading: true });
+      let result = await registerUser(email, password);
+      console.log(result.data);
+
+      setState({
+        ...state,
+        user: { id: result.data.localId, email: result.data.email },
+        loading: false,
+      });
+
+      storage.storeToken(result.data.idToken);
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setState({ ...state, loading: false });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -30,79 +55,68 @@ const RegisterScreen = ({ navigation }) => {
       <Text style={styles.subtitle}>
         Create your account and start managing your fleet.
       </Text>
-
       <Formik
         initialValues={{ email: "", password: "", confirmPassword: "" }}
-        onSubmit={async (values) => {
-          await new Promise((r) => setTimeout(r, 500));
-          alert(JSON.stringify(values, null, 2));
-        }}
+        onSubmit={handleRegister}
         validationSchema={validationSchema}
       >
-        {({ handleChange, handleSubmit, errors, setFieldTouched, touched }) => {
-          console.log("Errors:", errors);
-          console.log("Touched:", touched);
-          return (
-            <>
-              <TextInput
-                autoCapitalize="none"
-                keyboardType="email-address"
-                label="Email"
-                left={
-                  <TextInput.Icon icon="email" color={theme.colors.primary} />
-                }
-                mode="outlined"
-                onBlur={() => setFieldTouched("email")}
-                onChangeText={handleChange("email")}
-                style={styles.input}
-              />
-              <HelperText style={styles.errorMsg} type="error">
-                {touched.email && errors.email}
-              </HelperText>
-
-              <TextInput
-                label="Password"
-                left={
-                  <TextInput.Icon icon="lock" color={theme.colors.primary} />
-                }
-                mode="outlined"
-                onBlur={() => setFieldTouched("password")}
-                onChangeText={handleChange("password")}
-                secureTextEntry
-                style={styles.input}
-              />
-              <HelperText style={styles.errorMsg} type="error">
-                {touched.password && errors.password}
-              </HelperText>
-              <TextInput
-                label="Confirm Password"
-                left={
-                  <TextInput.Icon
-                    icon="lock-check"
-                    color={theme.colors.primary}
-                  />
-                }
-                mode="outlined"
-                onBlur={() => setFieldTouched("confirmPassword")}
-                onChangeText={handleChange("confirmPassword")}
-                secureTextEntry
-                style={styles.input}
-              />
-              <HelperText style={styles.errorMsg} type="error">
-                {touched.confirmPassword && errors.confirmPassword}
-              </HelperText>
-              <Button
-                buttonColor={theme.colors.primary}
-                labelStyle={styles.buttonText}
-                mode="contained"
-                onPress={handleSubmit}
-                style={styles.button}
-              >
-                Register
-              </Button>
-            </>
-          );
-        }}
+        {({ handleChange, handleSubmit, errors, setFieldTouched, touched }) => (
+          <>
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              label="Email"
+              left={
+                <TextInput.Icon icon="email" color={theme.colors.primary} />
+              }
+              mode="outlined"
+              onBlur={() => setFieldTouched("email")}
+              onChangeText={handleChange("email")}
+              style={styles.input}
+            />
+            <HelperText style={styles.errorMsg} type="error">
+              {touched.email && errors.email}
+            </HelperText>
+            <TextInput
+              label="Password"
+              left={<TextInput.Icon icon="lock" color={theme.colors.primary} />}
+              mode="outlined"
+              onBlur={() => setFieldTouched("password")}
+              onChangeText={handleChange("password")}
+              secureTextEntry
+              style={styles.input}
+            />
+            <HelperText style={styles.errorMsg} type="error">
+              {touched.password && errors.password}
+            </HelperText>
+            <TextInput
+              label="Confirm Password"
+              left={
+                <TextInput.Icon
+                  icon="lock-check"
+                  color={theme.colors.primary}
+                />
+              }
+              mode="outlined"
+              onBlur={() => setFieldTouched("confirmPassword")}
+              onChangeText={handleChange("confirmPassword")}
+              secureTextEntry
+              style={styles.input}
+            />
+            <HelperText style={styles.errorMsg} type="error">
+              {touched.confirmPassword && errors.confirmPassword}
+            </HelperText>
+            <Button
+              buttonColor={theme.colors.primary}
+              labelStyle={styles.buttonText}
+              mode="contained"
+              onPress={handleSubmit}
+              style={styles.button}
+            >
+              Register
+            </Button>
+          </>
+        )}
       </Formik>
       <Button
         mode="text"

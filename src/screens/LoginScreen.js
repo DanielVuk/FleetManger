@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, StyleSheet } from "react-native";
 import {
   HelperText,
@@ -9,6 +9,9 @@ import {
 } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { Context } from "../../AppContext";
+import { loginUser } from "../../services/auth.js";
+import storage from "../../services/storage.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -17,6 +20,30 @@ const validationSchema = Yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
   const theme = useTheme();
+  const [state, setState] = useContext(Context);
+
+  console.log(" LOGIN STATE: ", state);
+
+  const handleLogin = async ({ email, password }) => {
+    try {
+      setState({ ...state, loading: true });
+      let result = await loginUser(email, password);
+      // dodati if ako nije uspjesan login i return
+
+      setState({
+        ...state,
+        user: { token: result.data.idToken, id: result.data.localId },
+        loding: false,
+      });
+
+      storage.storeToken(result.data.idToken);
+
+      console.log("LOGIN USER: ", state.user);
+    } catch (error) {
+      console.error("Error during LOGIN:", error);
+      setState({ ...state, loading: false });
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -26,64 +53,51 @@ const LoginScreen = ({ navigation }) => {
       <Text style={styles.subtitle}>
         Welcome back! Get access to your fleet
       </Text>
-
       <Formik
         initialValues={{ email: "", password: "" }}
-        onSubmit={async (values) => {
-          await new Promise((r) => setTimeout(r, 500));
-          alert(JSON.stringify(values, null, 2));
-        }}
+        onSubmit={handleLogin}
         validationSchema={validationSchema}
       >
-        {({ handleChange, handleSubmit, errors, setFieldTouched, touched }) => {
-          console.log("Errors:", errors);
-          console.log("Touched:", touched);
-          return (
-            <>
-              <TextInput
-                autoCapitalize="none"
-                keyboardType="email-address"
-                label="Email"
-                left={
-                  <TextInput.Icon icon="account" color={theme.colors.primary} />
-                }
-                mode="outlined"
-                onBlur={() => setFieldTouched("email")}
-                onChangeText={handleChange("email")}
-                style={styles.input}
-              />
-
-              <HelperText style={styles.errorMsg} type="error">
-                {touched.email && errors.email}
-              </HelperText>
-
-              <TextInput
-                label="Password"
-                left={
-                  <TextInput.Icon icon="lock" color={theme.colors.primary} />
-                }
-                mode="outlined"
-                onBlur={() => setFieldTouched("password")}
-                onChangeText={handleChange("password")}
-                secureTextEntry
-                style={styles.input}
-              />
-
-              <HelperText type="error" style={styles.errorMsg}>
-                {touched.password && errors.password}
-              </HelperText>
-              <Button
-                buttonColor={theme.colors.primary}
-                labelStyle={styles.buttonText}
-                mode="contained"
-                onPress={handleSubmit}
-                style={styles.button}
-              >
-                Login
-              </Button>
-            </>
-          );
-        }}
+        {({ handleChange, handleSubmit, errors, setFieldTouched, touched }) => (
+          <>
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              label="Email"
+              left={
+                <TextInput.Icon icon="account" color={theme.colors.primary} />
+              }
+              mode="outlined"
+              onBlur={() => setFieldTouched("email")}
+              onChangeText={handleChange("email")}
+              style={styles.input}
+            />
+            <HelperText style={styles.errorMsg} type="error">
+              {touched.email && errors.email}
+            </HelperText>
+            <TextInput
+              label="Password"
+              left={<TextInput.Icon icon="lock" color={theme.colors.primary} />}
+              mode="outlined"
+              onBlur={() => setFieldTouched("password")}
+              onChangeText={handleChange("password")}
+              secureTextEntry
+              style={styles.input}
+            />
+            <HelperText type="error" style={styles.errorMsg}>
+              {touched.password && errors.password}
+            </HelperText>
+            <Button
+              buttonColor={theme.colors.primary}
+              labelStyle={styles.buttonText}
+              mode="contained"
+              onPress={handleSubmit}
+              style={styles.button}
+            >
+              Login
+            </Button>
+          </>
+        )}
       </Formik>
       <Button
         mode="text"
