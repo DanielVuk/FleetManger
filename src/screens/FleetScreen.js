@@ -11,6 +11,7 @@ export default function FleetScreen() {
     <View>
       <Text>FleetScreen</Text>
       <Text>{state?.user.id}</Text>
+      <Text>{state?.user.email}</Text>
 
       <Button
         mode="contained"

@@ -32,13 +32,11 @@ const LoginScreen = ({ navigation }) => {
 
       setState({
         ...state,
-        user: { token: result.data.idToken, id: result.data.localId },
+        user: { id: result.data.localId, email: result.data.email },
         loding: false,
       });
 
       storage.storeToken(result.data.idToken);
-
-      console.log("LOGIN USER: ", state.user);
     } catch (error) {
       console.error("Error during LOGIN:", error);
       setState({ ...state, loading: false });
