@@ -1,11 +1,11 @@
 import { View, Text } from "react-native";
 import React, { useContext } from "react";
-import { Context } from "../../AppContext";
+import { AppContext } from "../contexts/AppContext";
 import { Button } from "react-native-paper";
 import storage from "../../services/storage";
 
 export default function FleetScreen() {
-  const [state, setState] = useContext(Context);
+  const [state, setState] = useContext(AppContext);
 
   return (
     <View>

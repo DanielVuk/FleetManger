@@ -10,7 +10,8 @@ import {
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { registerUser } from "../../services/auth";
-import { Context } from "../../AppContext";
+import { AppContext } from "../contexts/AppContext.js";
+import { NotificationContext } from "../contexts/NotificationContext.js";
 import storage from "../../services/storage.js";
 
 const validationSchema = Yup.object().shape({
@@ -24,7 +25,8 @@ const validationSchema = Yup.object().shape({
 
 const RegisterScreen = ({ navigation }) => {
   const theme = useTheme();
-  const [state, setState] = useContext(Context);
+  const [state, setState] = useContext(AppContext);
+  const { showNotification } = useContext(NotificationContext);
 
   console.log(" REGISTER STATE: ", state);
 
@@ -41,9 +43,14 @@ const RegisterScreen = ({ navigation }) => {
       });
 
       storage.storeToken(result.data.idToken);
+
+      showNotification("success", "You have successfully registered.");
     } catch (error) {
-      console.error("Error during registration:", error);
       setState({ ...state, loading: false });
+      showNotification(
+        "error",
+        "We couldn't create your account. Please check your details and try again."
+      );
     }
   };
 

@@ -1,19 +1,22 @@
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNavigator from "./src/navigation/AuthNavigator";
 import AppNavigator from "./src/navigation/AppNavigator";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Snackbar, useTheme } from "react-native-paper";
 import { useContext, useEffect, useState, useCallback } from "react";
-import { Context } from "./AppContext";
+import { AppContext } from "./src/contexts/AppContext";
 import { StyleSheet, View } from "react-native";
 import { getUser } from "./services/auth";
 import storage from "./services/storage";
 import * as SplashScreen from "expo-splash-screen";
+import { NotificationContext } from "./src/contexts/NotificationContext";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [state, setState] = useContext(Context);
+  const theme = useTheme();
+  const [state, setState] = useContext(AppContext);
+  const { notification, hideNotification } = useContext(NotificationContext);
   const [appIsReady, setAppIsReady] = useState(false);
 
   const restoreToken = async () => {
@@ -60,6 +63,13 @@ export default function App() {
         style={styles.loader}
         size="large"
       />
+      <Snackbar
+        visible={notification.visible}
+        onDismiss={hideNotification}
+        style={{ backgroundColor: theme.colors[notification.type] }}
+      >
+        {notification.message}
+      </Snackbar>
     </View>
   );
 }

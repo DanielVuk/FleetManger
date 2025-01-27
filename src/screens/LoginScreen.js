@@ -9,9 +9,10 @@ import {
 } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { Context } from "../../AppContext";
+import { AppContext } from "../contexts/AppContext.js";
 import { loginUser } from "../../services/auth.js";
 import storage from "../../services/storage.js";
+import { NotificationContext } from "../contexts/NotificationContext.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -20,7 +21,8 @@ const validationSchema = Yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
   const theme = useTheme();
-  const [state, setState] = useContext(Context);
+  const [state, setState] = useContext(AppContext);
+  const { showNotification } = useContext(NotificationContext);
 
   console.log(" LOGIN STATE: ", state);
 
@@ -28,7 +30,6 @@ const LoginScreen = ({ navigation }) => {
     try {
       setState({ ...state, loading: true });
       let result = await loginUser(email, password);
-      // dodati if ako nije uspjesan login i return
 
       setState({
         ...state,
@@ -38,8 +39,11 @@ const LoginScreen = ({ navigation }) => {
 
       storage.storeToken(result.data.idToken);
     } catch (error) {
-      console.error("Error during LOGIN:", error);
       setState({ ...state, loading: false });
+      showNotification(
+        "error",
+        "Login failed. Please verify your credentials and try again."
+      );
     }
   };
 
