@@ -55,7 +55,9 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Text variant="headlineLarge" style={styles.title}>
         Sign Up to FleetManager
       </Text>
@@ -139,7 +141,6 @@ const RegisterScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f9f9f9",
     flex: 1,
     justifyContent: "center",
     padding: 20,

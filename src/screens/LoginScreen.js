@@ -34,7 +34,7 @@ const LoginScreen = ({ navigation }) => {
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
-        loding: false,
+        loading: false,
       });
 
       storage.storeToken(result.data.idToken);
@@ -48,7 +48,9 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <Text variant="headlineLarge" style={styles.title}>
         Sign In to FleetManager
       </Text>
@@ -115,7 +117,6 @@ const LoginScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f9f9f9",
     flex: 1,
     justifyContent: "center",
     padding: 20,

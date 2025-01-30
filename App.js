@@ -27,8 +27,6 @@ export default function App() {
       return;
     }
     try {
-      console.log("TOKEN NA pocetku: ", token);
-
       const user = await getUser(token);
       console.log("USER  => ", user);
       setState({ ...state, user: user });
