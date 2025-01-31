@@ -23,6 +23,14 @@ const deleteVehicle = async (vehicleId) => {
   return await axios.delete(endpoint);
 };
 
+const editVehicle = async (vehicle) => {
+  const { id, ...vehicleData } = vehicle;
+  const token = await storage.getToken();
+  const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/fleet/${id}.json?auth=${token}`;
+
+  return await axios.put(endpoint, vehicleData);
+};
+
 const getUserFleet = async (userId) => {
   const token = await storage.getToken();
   const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/fleet.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
@@ -41,4 +49,4 @@ const getUserFleet = async (userId) => {
   return fleet;
 };
 
-export { addVehicle, deleteVehicle, getUserFleet };
+export { addVehicle, deleteVehicle, getUserFleet, editVehicle };

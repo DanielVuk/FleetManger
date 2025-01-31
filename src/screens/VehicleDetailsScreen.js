@@ -16,7 +16,7 @@ import * as Yup from "yup";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { uploadImage } from "../../services/uploadImage";
 import { AppContext } from "../contexts/AppContext";
-import { addVehicle } from "../../services/fleetServices";
+import { addVehicle, editVehicle } from "../../services/fleetServices";
 import { NotificationContext } from "../contexts/NotificationContext";
 import { useNavigation } from "@react-navigation/native";
 
@@ -33,11 +33,14 @@ const validationSchema = Yup.object().shape({
   image: Yup.string().required("Vehicle image is required"),
 });
 
-const AddVehicleScreen = () => {
+const VehicleDetailsScreen = ({ route }) => {
+  const { vehicle } = route.params || {};
   const [state, setState] = useContext(AppContext);
   const [showPicker, setShowPicker] = useState(false);
   const { showNotification } = useContext(NotificationContext);
   const navigation = useNavigation();
+
+  const isEditMode = !!vehicle;
 
   const pickImage = async (setFieldValue) => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -50,30 +53,53 @@ const AddVehicleScreen = () => {
     if (!result.canceled) setFieldValue("image", result.assets[0].uri);
   };
 
-  const handleAddVehicle = async (values) => {
+  const handleSubmit = async (values) => {
     try {
       setState({ ...state, loading: true });
-      const uploadedImageUrl = await uploadImage(values.image);
 
-      const newVehicle = {
-        ...values,
-        image: uploadedImageUrl,
-        userId: state.user.id,
-      };
-      const res = await addVehicle(newVehicle);
+      if (isEditMode) {
+        const uploadedImageUrl = values.image.startsWith("http")
+          ? values.image
+          : await uploadImage(values.image);
 
-      setState((prevState) => ({
-        ...prevState,
-        fleet: [...prevState.fleet, { ...res }],
-        loading: false,
-      }));
+        const updatedVehicle = {
+          id: vehicle.id,
+          ...values,
+          image: uploadedImageUrl,
+          userId: state.user.id,
+        };
 
-      showNotification(
-        "success",
-        `${values.name} has been added to your fleet.`
-      );
+        await editVehicle(updatedVehicle);
 
-      navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
+        const updatedFleet = state.fleet.map((v) =>
+          v.id === vehicle.id ? updatedVehicle : v
+        );
+
+        setState({ ...state, fleet: updatedFleet, loading: false });
+        showNotification("success", `${values.name} updated successfully.`);
+        navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
+      } else {
+        const uploadedImageUrl = await uploadImage(values.image);
+
+        const newVehicle = {
+          ...values,
+          image: uploadedImageUrl,
+          userId: state.user.id,
+        };
+        const res = await addVehicle(newVehicle);
+
+        setState((prevState) => ({
+          ...prevState,
+          fleet: [...prevState.fleet, { ...res }],
+          loading: false,
+        }));
+
+        showNotification(
+          "success",
+          `${values.name} has been added to your fleet.`
+        );
+        navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
+      }
     } catch (error) {
       console.log(error);
       setState({
@@ -91,18 +117,18 @@ const AddVehicleScreen = () => {
         </Text>
         <Formik
           initialValues={{
-            name: "",
-            year: "",
-            mileage: "",
-            vin: "",
-            purchasePrice: "",
-            registrationNumber: "",
-            registrationDate: "",
-            owner: "",
-            image: "",
+            name: vehicle?.name || "",
+            year: vehicle?.year || "",
+            mileage: vehicle?.mileage || "",
+            vin: vehicle?.vin || "",
+            purchasePrice: vehicle?.purchasePrice || "",
+            registrationNumber: vehicle?.registrationNumber || "",
+            registrationDate: vehicle?.registrationDate || "",
+            owner: vehicle?.owner || "",
+            image: vehicle?.image || "",
           }}
           validationSchema={validationSchema}
-          onSubmit={handleAddVehicle}
+          onSubmit={handleSubmit}
         >
           {({
             handleChange,
@@ -263,7 +289,7 @@ const AddVehicleScreen = () => {
                 onPress={handleSubmit}
                 style={styles.button}
               >
-                Add Vehicle
+                {isEditMode ? "Update Vehicle" : "Add Vehicle"}
               </Button>
             </>
           )}
@@ -316,4 +342,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddVehicleScreen;
+export default VehicleDetailsScreen;

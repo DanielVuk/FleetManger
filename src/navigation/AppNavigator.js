@@ -5,7 +5,7 @@ import LogsScreen from "../screens/LogsScreen";
 import FleetScreen from "../screens/FleetScreen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createStackNavigator } from "@react-navigation/stack";
-import AddVehicleScreen from "../screens/AddVehicleScreen";
+import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 const FleetNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="FleetMain" component={FleetScreen} />
-    <Stack.Screen name="AddVehicle" component={AddVehicleScreen} />
+    <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />
   </Stack.Navigator>
 );
 

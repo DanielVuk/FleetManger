@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useTheme, Text, IconButton } from "react-native-paper";
 import Vehicle from "../components/Vehicle";
@@ -38,6 +38,10 @@ const FleetScreen = () => {
     }
   };
 
+  const handleEdit = (vehicle) => {
+    navigation.navigate("VehicleDetails", { vehicle });
+  };
+
   return (
     <>
       <ScrollView
@@ -61,7 +65,7 @@ const FleetScreen = () => {
             icon="plus"
             size={30}
             onPress={() => {
-              navigation.navigate("AddVehicle");
+              navigation.navigate("VehicleDetails");
             }}
           />
         </View>
@@ -70,6 +74,7 @@ const FleetScreen = () => {
             key={vehicle.id}
             vehicle={vehicle}
             onDelete={() => handleDelete(vehicle)}
+            onPress={() => handleEdit(vehicle)}
           />
         ))}
       </ScrollView>

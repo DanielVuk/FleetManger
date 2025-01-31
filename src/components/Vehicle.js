@@ -1,12 +1,13 @@
 import React from "react";
+import { TouchableOpacity } from "react-native";
 import { View, StyleSheet, Image } from "react-native";
 import { useTheme, Text, IconButton } from "react-native-paper";
 
-const Vehicle = ({ vehicle, onDelete }) => {
+const Vehicle = ({ vehicle, onDelete, onPress }) => {
   const theme = useTheme();
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} style={styles.card}>
       <Image style={styles.image} source={{ uri: vehicle.image }} />
       <View style={styles.contentContainer}>
         <Text style={styles.title} variant="titleSmall">
@@ -18,7 +19,7 @@ const Vehicle = ({ vehicle, onDelete }) => {
           onPress={onDelete}
         />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
