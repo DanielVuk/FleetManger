@@ -2,18 +2,12 @@ import React from "react";
 import { View, StyleSheet, Image } from "react-native";
 import { useTheme, Text, IconButton } from "react-native-paper";
 
-const Vehicle = ({ vehicle }) => {
-  const handleDelete = async (vehicle) => {
-    console.log("Obrisi ", vehicle.name);
-  };
-
+const Vehicle = ({ vehicle, onDelete }) => {
   const theme = useTheme();
+
   return (
     <View style={styles.card}>
-      <Image
-        style={styles.image}
-        source={require("../../assets/mercedes.jpg")}
-      />
+      <Image style={styles.image} source={{ uri: vehicle.image }} />
       <View style={styles.contentContainer}>
         <Text style={styles.title} variant="titleSmall">
           {vehicle.name}
@@ -21,7 +15,7 @@ const Vehicle = ({ vehicle }) => {
         <IconButton
           icon="delete"
           iconColor={theme.colors.error}
-          onPress={() => handleDelete(vehicle)}
+          onPress={onDelete}
         />
       </View>
     </View>

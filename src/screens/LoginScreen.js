@@ -13,6 +13,7 @@ import { AppContext } from "../contexts/AppContext.js";
 import { loginUser } from "../../services/auth.js";
 import storage from "../../services/storage.js";
 import { NotificationContext } from "../contexts/NotificationContext.js";
+import { getUserFleet } from "../../services/fleetServices.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -24,20 +25,21 @@ const LoginScreen = ({ navigation }) => {
   const [state, setState] = useContext(AppContext);
   const { showNotification } = useContext(NotificationContext);
 
-  console.log(" LOGIN STATE: ", state);
-
   const handleLogin = async ({ email, password }) => {
     try {
       setState({ ...state, loading: true });
+
       let result = await loginUser(email, password);
+      storage.storeToken(result.data.idToken);
+
+      const fleet = await getUserFleet(result.data.localId);
 
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
+        fleet: fleet,
         loading: false,
       });
-
-      storage.storeToken(result.data.idToken);
     } catch (error) {
       setState({ ...state, loading: false });
       showNotification(

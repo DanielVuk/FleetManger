@@ -3,6 +3,7 @@ import React, { createContext, useState } from "react";
 const initialState = {
   loading: false,
   user: null,
+  fleet: [],
 };
 
 const AppContext = createContext();

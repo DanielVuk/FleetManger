@@ -9,6 +9,7 @@ import { getUser } from "./services/auth";
 import storage from "./services/storage";
 import * as SplashScreen from "expo-splash-screen";
 import { NotificationContext } from "./src/contexts/NotificationContext";
+import { getUserFleet } from "./services/fleetServices";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -23,13 +24,20 @@ export default function App() {
     const token = await storage.getToken();
 
     if (!token) {
-      setState({ ...state, user: null });
+      setState((prevState) => ({ ...prevState, user: null }));
+
       return;
     }
     try {
       const user = await getUser(token);
-      console.log("USER  => ", user);
-      setState({ ...state, user: user });
+      const fleet = await getUserFleet(user.id);
+      // console.log("USER  => ", user);
+      // console.log("FLEET  => ", fleet);
+      setState((prevState) => ({
+        ...prevState,
+        user,
+        fleet,
+      }));
     } catch (error) {
       console.error("Failed to retrieve user:", error);
       setState((prevState) => ({ ...prevState, user: null }));
@@ -64,6 +72,7 @@ export default function App() {
       <Snackbar
         visible={notification.visible}
         onDismiss={hideNotification}
+        duration={3000}
         style={{ backgroundColor: theme.colors[notification.type] }}
       >
         {notification.message}

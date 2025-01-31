@@ -34,15 +34,14 @@ const RegisterScreen = ({ navigation }) => {
     try {
       setState({ ...state, loading: true });
       let result = await registerUser(email, password);
-      console.log(result.data);
+
+      storage.storeToken(result.data.idToken);
 
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
         loading: false,
       });
-
-      storage.storeToken(result.data.idToken);
 
       showNotification("success", "You have successfully registered.");
     } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   SafeAreaView,
   Image,
@@ -7,18 +7,37 @@ import {
   View,
   Dimensions,
   Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Text, TextInput, Button, HelperText } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { uploadImage } from "../../services/uploadImage";
+import { AppContext } from "../contexts/AppContext";
+import { addVehicle } from "../../services/fleetServices";
+import { NotificationContext } from "../contexts/NotificationContext";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required(),
+  year: Yup.number().required().min(1900).max(new Date().getFullYear()),
+  mileage: Yup.number().required(),
+  purchasePrice: Yup.number().required(),
+  registrationNumber: Yup.string().required(),
+  registrationDate: Yup.date().required(),
+  vin: Yup.string().optional(),
+  owner: Yup.string().optional(),
+  image: Yup.string().required("Vehicle image is required"),
+});
 
 const AddVehicleScreen = () => {
-  const [image, setImage] = useState(null);
+  const [state, setState] = useContext(AppContext);
   const [showPicker, setShowPicker] = useState(false);
+  const { showNotification } = useContext(NotificationContext);
+  const navigation = useNavigation();
 
   const pickImage = async (setFieldValue) => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -28,216 +47,229 @@ const AddVehicleScreen = () => {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      setFieldValue("image", result.assets[0].uri);
+    if (!result.canceled) setFieldValue("image", result.assets[0].uri);
+  };
+
+  const handleAddVehicle = async (values) => {
+    try {
+      setState({ ...state, loading: true });
+      const uploadedImageUrl = await uploadImage(values.image);
+
+      const newVehicle = {
+        ...values,
+        image: uploadedImageUrl,
+        userId: state.user.id,
+      };
+      const res = await addVehicle(newVehicle);
+
+      setState((prevState) => ({
+        ...prevState,
+        fleet: [...prevState.fleet, { ...res }],
+        loading: false,
+      }));
+
+      showNotification(
+        "success",
+        `${values.name} has been added to your fleet.`
+      );
+
+      navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
+    } catch (error) {
+      console.log(error);
+      setState({
+        ...state,
+        loading: false,
+      });
     }
   };
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required(),
-    year: Yup.number().required().min(1900).max(new Date().getFullYear()),
-    mileage: Yup.number().required(),
-    purchasePrice: Yup.number().required(),
-    registrationNumber: Yup.string().required(),
-    registrationDate: Yup.date().required(),
-    vin: Yup.string().optional(),
-    owner: Yup.string().optional(),
-    image: Yup.string().required("Vehicle image is required"),
-  });
-
-  const handleAddVehicle = (values) => {
-    console.log("AUTO: ", values); // Handle submission logic here
-  };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
-        Adding a vehicle to the fleet
-      </Text>
-
-      <Formik
-        initialValues={{
-          name: "",
-          year: "",
-          mileage: "",
-          vin: "",
-          purchasePrice: "",
-          registrationNumber: "",
-          registrationDate: "",
-          owner: "",
-          image: "",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleAddVehicle}
-      >
-        {({
-          handleChange,
-          handleSubmit,
-          setFieldValue,
-          errors,
-          touched,
-          setFieldTouched,
-          values,
-        }) => (
-          <>
-            <TouchableOpacity
-              onPress={() => pickImage(setFieldValue)}
-              style={styles.imageContainer}
-            >
-              {image || values.image ? (
-                <Image
-                  source={{ uri: image || values.image }}
-                  style={styles.image}
-                />
-              ) : (
-                <Text style={styles.placeholderText}>
-                  Tap to add an image of vehicle
-                </Text>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <SafeAreaView style={styles.container}>
+        <Text variant="headlineSmall" style={styles.title}>
+          Adding a vehicle to the fleet
+        </Text>
+        <Formik
+          initialValues={{
+            name: "",
+            year: "",
+            mileage: "",
+            vin: "",
+            purchasePrice: "",
+            registrationNumber: "",
+            registrationDate: "",
+            owner: "",
+            image: "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleAddVehicle}
+        >
+          {({
+            handleChange,
+            handleSubmit,
+            setFieldValue,
+            errors,
+            touched,
+            setFieldTouched,
+            values,
+          }) => (
+            <>
+              <TouchableOpacity
+                onPress={() => pickImage(setFieldValue)}
+                style={styles.imageContainer}
+              >
+                {values.image ? (
+                  <Image source={{ uri: values.image }} style={styles.image} />
+                ) : (
+                  <Text style={styles.placeholderText}>
+                    Tap to add an image of vehicle
+                  </Text>
+                )}
+              </TouchableOpacity>
+              {errors.image && touched.image && (
+                <HelperText style={{ marginTop: -20 }} type="error">
+                  {errors.image}
+                </HelperText>
               )}
-            </TouchableOpacity>
-            {errors.image && touched.image && (
-              <HelperText style={{ marginTop: -20 }} type="error">
-                {errors.image}
-              </HelperText>
-            )}
 
-            <View style={styles.row}>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Vehicle Name"
-                  mode="outlined"
-                  onBlur={() => setFieldTouched("name")}
-                  onChangeText={handleChange("name")}
-                  value={values.name}
-                  error={touched.name && errors.name}
-                />
+              <View style={styles.row}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Vehicle Name"
+                    mode="outlined"
+                    onBlur={() => setFieldTouched("name")}
+                    onChangeText={handleChange("name")}
+                    value={values.name}
+                    error={touched.name && errors.name}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Year"
+                    mode="outlined"
+                    maxLength={4}
+                    keyboardType="numeric"
+                    onBlur={() => setFieldTouched("year")}
+                    onChangeText={handleChange("year")}
+                    value={values.year}
+                    error={touched.year && errors.year}
+                  />
+                </View>
               </View>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Year"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  onBlur={() => setFieldTouched("year")}
-                  onChangeText={handleChange("year")}
-                  value={values.year}
-                  error={touched.year && errors.year}
-                />
-              </View>
-            </View>
 
-            <View style={styles.row}>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Mileage"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  onBlur={() => setFieldTouched("mileage")}
-                  onChangeText={handleChange("mileage")}
-                  value={values.mileage}
-                  error={touched.mileage && errors.mileage}
-                />
+              <View style={styles.row}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Mileage"
+                    mode="outlined"
+                    keyboardType="numeric"
+                    onBlur={() => setFieldTouched("mileage")}
+                    onChangeText={handleChange("mileage")}
+                    value={values.mileage}
+                    error={touched.mileage && errors.mileage}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Purchase Price"
+                    mode="outlined"
+                    keyboardType="numeric"
+                    onBlur={() => setFieldTouched("purchasePrice")}
+                    onChangeText={handleChange("purchasePrice")}
+                    value={values.purchasePrice}
+                    error={touched.purchasePrice && errors.purchasePrice}
+                  />
+                </View>
               </View>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Purchase Price"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  onBlur={() => setFieldTouched("purchasePrice")}
-                  onChangeText={handleChange("purchasePrice")}
-                  value={values.purchasePrice}
-                  error={touched.purchasePrice && errors.purchasePrice}
-                />
-              </View>
-            </View>
 
-            <View style={styles.row}>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Registration Date"
-                  mode="outlined"
+              <View style={styles.row}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Registration Date"
+                    mode="outlined"
+                    value={
+                      values.registrationDate
+                        ? new Date(values.registrationDate).toLocaleDateString()
+                        : ""
+                    }
+                    editable={false}
+                    error={touched.registrationDate && errors.registrationDate}
+                    onPressIn={() => {
+                      Keyboard.dismiss();
+                      setShowPicker(true);
+                    }}
+                  />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Registration Number"
+                    mode="outlined"
+                    onBlur={() => setFieldTouched("registrationNumber")}
+                    onChangeText={handleChange("registrationNumber")}
+                    value={values.registrationNumber}
+                    error={
+                      touched.registrationNumber && errors.registrationNumber
+                    }
+                  />
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="VIN (Optional)"
+                    mode="outlined"
+                    onBlur={() => setFieldTouched("vin")}
+                    onChangeText={handleChange("vin")}
+                    value={values.vin}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Owner (Optional)"
+                    mode="outlined"
+                    onBlur={() => setFieldTouched("owner")}
+                    onChangeText={handleChange("owner")}
+                    value={values.owner}
+                  />
+                </View>
+              </View>
+
+              {showPicker && (
+                <RNDateTimePicker
                   value={
                     values.registrationDate
-                      ? new Date(values.registrationDate).toLocaleDateString()
-                      : ""
+                      ? new Date(values.registrationDate)
+                      : new Date()
                   }
-                  editable={false}
-                  error={touched.registrationDate && errors.registrationDate}
-                  onPressIn={() => {
-                    Keyboard.dismiss();
-                    setShowPicker(true);
+                  mode="date"
+                  display="spinner"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      setFieldValue(
+                        "registrationDate",
+                        selectedDate.toISOString()
+                      );
+                    }
                   }}
                 />
-              </View>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Registration Number"
-                  mode="outlined"
-                  onBlur={() => setFieldTouched("registrationNumber")}
-                  onChangeText={handleChange("registrationNumber")}
-                  value={values.registrationNumber}
-                  error={
-                    touched.registrationNumber && errors.registrationNumber
-                  }
-                />
-              </View>
-            </View>
-
-            <View style={styles.row}>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="VIN (Optional)"
-                  mode="outlined"
-                  onBlur={() => setFieldTouched("vin")}
-                  onChangeText={handleChange("vin")}
-                  value={values.vin}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <TextInput
-                  label="Owner (Optional)"
-                  mode="outlined"
-                  onBlur={() => setFieldTouched("owner")}
-                  onChangeText={handleChange("owner")}
-                  value={values.owner}
-                />
-              </View>
-            </View>
-
-            {showPicker && (
-              <RNDateTimePicker
-                value={
-                  values.registrationDate
-                    ? new Date(values.registrationDate)
-                    : new Date()
-                }
-                mode="date"
-                display="spinner"
-                onChange={(event, selectedDate) => {
-                  if (selectedDate) {
-                    setFieldValue(
-                      "registrationDate",
-                      selectedDate.toISOString()
-                    );
-                  }
-                }}
-              />
-            )}
-            {showPicker && (
-              <Button onPress={() => setShowPicker(false)}>Confirm</Button>
-            )}
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              style={styles.button}
-            >
-              Add Vehicle
-            </Button>
-          </>
-        )}
-      </Formik>
-    </SafeAreaView>
+              )}
+              {showPicker && (
+                <Button onPress={() => setShowPicker(false)}>Confirm</Button>
+              )}
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                style={styles.button}
+              >
+                Add Vehicle
+              </Button>
+            </>
+          )}
+        </Formik>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -252,8 +284,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imageContainer: {
-    width: 300,
-    height: 150,
+    width: width * 0.9,
+    height: 200,
     backgroundColor: "#ddd",
     justifyContent: "center",
     alignItems: "center",
