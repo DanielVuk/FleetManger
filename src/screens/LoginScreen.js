@@ -14,6 +14,7 @@ import { loginUser } from "../../services/auth.js";
 import storage from "../../services/storage.js";
 import { NotificationContext } from "../contexts/NotificationContext.js";
 import { getUserFleet } from "../../services/fleetServices.js";
+import { getUserCategories } from "../../services/categoryServices.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -33,11 +34,12 @@ const LoginScreen = ({ navigation }) => {
       storage.storeToken(result.data.idToken);
 
       const fleet = await getUserFleet(result.data.localId);
-
+      const categories = await getUserCategories(result.data.localId);
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
         fleet: fleet,
+        categories: categories,
         loading: false,
       });
     } catch (error) {
@@ -50,9 +52,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-    >
+    <View style={styles.container}>
       <Text variant="headlineLarge" style={styles.title}>
         Sign In to FleetManager
       </Text>

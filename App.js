@@ -10,6 +10,7 @@ import storage from "./services/storage";
 import * as SplashScreen from "expo-splash-screen";
 import { NotificationContext } from "./src/contexts/NotificationContext";
 import { getUserFleet } from "./services/fleetServices";
+import { getUserCategories } from "./services/categoryServices";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -31,12 +32,15 @@ export default function App() {
     try {
       const user = await getUser(token);
       const fleet = await getUserFleet(user.id);
+      const categories = await getUserCategories(user.id);
       // console.log("USER  => ", user);
       // console.log("FLEET  => ", fleet);
+      // console.log("CATEGORIES  => ", categories);
       setState((prevState) => ({
         ...prevState,
         user,
         fleet,
+        categories,
       }));
     } catch (error) {
       console.error("Failed to retrieve user:", error);

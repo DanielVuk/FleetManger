@@ -1,24 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  View,
-  Dimensions,
-  Keyboard,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Text, TextInput, Button, HelperText } from "react-native-paper";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
+import React, { useContext, useState } from "react";
+import {
+  Dimensions,
+  Image,
+  Keyboard,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import * as Yup from "yup";
-import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { addVehicle, editVehicle } from "../../services/fleetServices";
 import { uploadImage } from "../../services/uploadImage";
 import { AppContext } from "../contexts/AppContext";
-import { addVehicle, editVehicle } from "../../services/fleetServices";
 import { NotificationContext } from "../contexts/NotificationContext";
-import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 const validationSchema = Yup.object().shape({
@@ -147,9 +147,7 @@ const VehicleDetailsScreen = ({ route }) => {
                 {values.image ? (
                   <Image source={{ uri: values.image }} style={styles.image} />
                 ) : (
-                  <Text style={styles.placeholderText}>
-                    Tap to add an image of vehicle
-                  </Text>
+                  <Text>Tap to add an image of vehicle</Text>
                 )}
               </TouchableOpacity>
               {errors.image && touched.image && (
@@ -161,24 +159,26 @@ const VehicleDetailsScreen = ({ route }) => {
               <View style={styles.row}>
                 <View style={styles.inputContainer}>
                   <TextInput
+                    error={touched.name && errors.name}
                     label="Vehicle Name"
                     mode="outlined"
                     onBlur={() => setFieldTouched("name")}
                     onChangeText={handleChange("name")}
+                    style={styles.input}
                     value={values.name}
-                    error={touched.name && errors.name}
                   />
                 </View>
                 <View style={styles.inputContainer}>
                   <TextInput
-                    label="Year"
-                    mode="outlined"
-                    maxLength={4}
+                    error={touched.year && errors.year}
                     keyboardType="numeric"
+                    label="Year"
+                    maxLength={4}
+                    mode="outlined"
                     onBlur={() => setFieldTouched("year")}
                     onChangeText={handleChange("year")}
+                    style={styles.input}
                     value={values.year}
-                    error={touched.year && errors.year}
                   />
                 </View>
               </View>
@@ -186,24 +186,26 @@ const VehicleDetailsScreen = ({ route }) => {
               <View style={styles.row}>
                 <View style={styles.inputContainer}>
                   <TextInput
+                    error={touched.mileage && errors.mileage}
+                    keyboardType="numeric"
                     label="Mileage"
                     mode="outlined"
-                    keyboardType="numeric"
                     onBlur={() => setFieldTouched("mileage")}
                     onChangeText={handleChange("mileage")}
+                    style={styles.input}
                     value={values.mileage}
-                    error={touched.mileage && errors.mileage}
                   />
                 </View>
                 <View style={styles.inputContainer}>
                   <TextInput
+                    error={touched.purchasePrice && errors.purchasePrice}
+                    keyboardType="numeric"
                     label="Purchase Price"
                     mode="outlined"
-                    keyboardType="numeric"
                     onBlur={() => setFieldTouched("purchasePrice")}
                     onChangeText={handleChange("purchasePrice")}
+                    style={styles.input}
                     value={values.purchasePrice}
-                    error={touched.purchasePrice && errors.purchasePrice}
                   />
                 </View>
               </View>
@@ -211,19 +213,20 @@ const VehicleDetailsScreen = ({ route }) => {
               <View style={styles.row}>
                 <View style={styles.inputContainer}>
                   <TextInput
+                    editable={false}
+                    error={touched.registrationDate && errors.registrationDate}
                     label="Registration Date"
                     mode="outlined"
+                    style={styles.input}
+                    onPressIn={() => {
+                      Keyboard.dismiss();
+                      setShowPicker(true);
+                    }}
                     value={
                       values.registrationDate
                         ? new Date(values.registrationDate).toLocaleDateString()
                         : ""
                     }
-                    editable={false}
-                    error={touched.registrationDate && errors.registrationDate}
-                    onPressIn={() => {
-                      Keyboard.dismiss();
-                      setShowPicker(true);
-                    }}
                   />
                 </View>
 
@@ -233,10 +236,11 @@ const VehicleDetailsScreen = ({ route }) => {
                     mode="outlined"
                     onBlur={() => setFieldTouched("registrationNumber")}
                     onChangeText={handleChange("registrationNumber")}
-                    value={values.registrationNumber}
+                    style={styles.input}
                     error={
                       touched.registrationNumber && errors.registrationNumber
                     }
+                    value={values.registrationNumber}
                   />
                 </View>
               </View>
@@ -248,6 +252,7 @@ const VehicleDetailsScreen = ({ route }) => {
                     mode="outlined"
                     onBlur={() => setFieldTouched("vin")}
                     onChangeText={handleChange("vin")}
+                    style={styles.input}
                     value={values.vin}
                   />
                 </View>
@@ -257,6 +262,7 @@ const VehicleDetailsScreen = ({ route }) => {
                     mode="outlined"
                     onBlur={() => setFieldTouched("owner")}
                     onChangeText={handleChange("owner")}
+                    style={styles.input}
                     value={values.owner}
                   />
                 </View>
@@ -301,41 +307,40 @@ const VehicleDetailsScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    flex: 1,
     alignItems: "center",
   },
+
   title: {
     alignSelf: "center",
     marginBottom: 20,
   },
   imageContainer: {
-    width: width * 0.9,
-    height: 200,
-    backgroundColor: "#ddd",
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#ddd",
     borderRadius: 10,
-    overflow: "hidden",
+    height: 200,
+    justifyContent: "center",
     marginBottom: 20,
+    overflow: "hidden",
+    width: width * 0.9,
   },
   image: {
-    width: "100%",
     height: "100%",
     resizeMode: "cover",
-  },
-  placeholderText: {
-    color: "gray",
+    width: "100%",
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  input: {
+    backgroundColor: "white",
+  },
   inputContainer: {
     flex: 1,
-    maxWidth: width / 2 - 20,
-    marginHorizontal: 5,
     marginBottom: 10,
+    marginHorizontal: 5,
+    maxWidth: width / 2 - 20,
   },
   button: {
     marginTop: 20,

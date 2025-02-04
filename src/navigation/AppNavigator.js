@@ -1,21 +1,47 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
-import LogsScreen from "../screens/LogsScreen";
+import ActivityScreen from "../screens/ActivityScreen";
 import FleetScreen from "../screens/FleetScreen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createStackNavigator } from "@react-navigation/stack";
 import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
+import CategoryDetailsScreen from "../screens/CategoryDetailsScreen";
+import { useTheme } from "react-native-paper";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const FleetNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="FleetMain" component={FleetScreen} />
-    <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />
-  </Stack.Navigator>
-);
+const FleetNavigator = () => {
+  const theme = useTheme();
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
+      <Stack.Screen name="FleetMain" component={FleetScreen} />
+      <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const ActivityNavigator = () => {
+  const theme = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
+      <Stack.Screen name="ActivityMain" component={ActivityScreen} />
+      <Stack.Screen name="CategoryDetails" component={CategoryDetailsScreen} />
+    </Stack.Navigator>
+  );
+};
 
 const AppNavigator = () => (
   <Tab.Navigator>
@@ -31,7 +57,7 @@ const AppNavigator = () => (
     />
     <Tab.Screen
       name="Activity"
-      component={LogsScreen}
+      component={ActivityNavigator}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
