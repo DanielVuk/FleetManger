@@ -1,10 +1,10 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useContext } from "react";
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
-import { Text, IconButton } from "react-native-paper";
-import Vehicle from "../components/Vehicle";
-import { useNavigation } from "@react-navigation/native";
-import { AppContext } from "../contexts/AppContext";
+import { IconButton, Text } from "react-native-paper";
 import { deleteVehicle } from "../../services/fleetServices";
+import Vehicle from "../components/Vehicle";
+import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
 
 const FleetScreen = () => {

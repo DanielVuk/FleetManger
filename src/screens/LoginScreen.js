@@ -1,20 +1,21 @@
+import { Formik } from "formik";
 import React, { useContext } from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
+  Button,
   HelperText,
   Text,
   TextInput,
-  Button,
   useTheme,
 } from "react-native-paper";
-import { Formik } from "formik";
 import * as Yup from "yup";
-import { AppContext } from "../contexts/AppContext.js";
+import { getUserActivities } from "../../services/activityServices.js";
 import { loginUser } from "../../services/auth.js";
-import storage from "../../services/storage.js";
-import { NotificationContext } from "../contexts/NotificationContext.js";
-import { getUserFleet } from "../../services/fleetServices.js";
 import { getUserCategories } from "../../services/categoryServices.js";
+import { getUserFleet } from "../../services/fleetServices.js";
+import storage from "../../services/storage.js";
+import { AppContext } from "../contexts/AppContext.js";
+import { NotificationContext } from "../contexts/NotificationContext.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),
@@ -35,11 +36,13 @@ const LoginScreen = ({ navigation }) => {
 
       const fleet = await getUserFleet(result.data.localId);
       const categories = await getUserCategories(result.data.localId);
+      const activities = await getUserActivities(result.data.localId);
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
         fleet: fleet,
         categories: categories,
+        activities: activities,
         loading: false,
       });
     } catch (error) {

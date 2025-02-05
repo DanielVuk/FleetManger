@@ -1,13 +1,14 @@
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "../screens/HomeScreen";
-import ActivityScreen from "../screens/ActivityScreen";
-import FleetScreen from "../screens/FleetScreen";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
-import CategoryDetailsScreen from "../screens/CategoryDetailsScreen";
+import React from "react";
 import { useTheme } from "react-native-paper";
+import ActivityDetailsScreen from "../screens/ActivityDetailsScreen";
+import ActivityScreen from "../screens/ActivityScreen";
+import CategoryDetailsScreen from "../screens/CategoryDetailsScreen";
+import FleetScreen from "../screens/FleetScreen";
+import HomeScreen from "../screens/HomeScreen";
+import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -39,6 +40,7 @@ const ActivityNavigator = () => {
     >
       <Stack.Screen name="ActivityMain" component={ActivityScreen} />
       <Stack.Screen name="CategoryDetails" component={CategoryDetailsScreen} />
+      <Stack.Screen name="ActivityDetails" component={ActivityDetailsScreen} />
     </Stack.Navigator>
   );
 };

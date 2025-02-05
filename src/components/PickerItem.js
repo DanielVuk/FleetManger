@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 
 const PickerItem = ({ label, onPress }) => {

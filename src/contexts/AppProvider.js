@@ -1,8 +1,8 @@
 import React from "react";
-import { NotificationProvider } from "./NotificationContext";
-import { AppStateProvider } from "./AppContext";
 import { Provider as PaperProvider } from "react-native-paper";
 import { theme } from "../styles/theme";
+import { AppStateProvider } from "./AppContext";
+import { NotificationProvider } from "./NotificationContext";
 
 const AppProvider = ({ children }) => (
   <AppStateProvider>

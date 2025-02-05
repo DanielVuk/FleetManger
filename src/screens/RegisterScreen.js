@@ -1,18 +1,18 @@
-import React, { useContext, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { Formik } from "formik";
+import React, { useContext } from "react";
+import { StyleSheet, View } from "react-native";
 import {
+  Button,
   HelperText,
   Text,
   TextInput,
-  Button,
   useTheme,
 } from "react-native-paper";
-import { Formik } from "formik";
 import * as Yup from "yup";
 import { registerUser } from "../../services/auth";
+import storage from "../../services/storage.js";
 import { AppContext } from "../contexts/AppContext.js";
 import { NotificationContext } from "../contexts/NotificationContext.js";
-import storage from "../../services/storage.js";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label("Email"),

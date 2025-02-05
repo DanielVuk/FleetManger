@@ -5,6 +5,7 @@ const initialState = {
   user: null,
   fleet: [],
   categories: [],
+  activities: [],
 };
 
 const AppContext = createContext();

@@ -1,9 +1,9 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import WelcomeScreen from "../screens/WelcomeScreen";
+import React from "react";
+import { useTheme } from "react-native-paper";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
-import { useTheme } from "react-native-paper";
+import WelcomeScreen from "../screens/WelcomeScreen";
 
 const Stack = createStackNavigator();
 

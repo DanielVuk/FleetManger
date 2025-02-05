@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -8,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { Button, Text } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PickerItem from "./PickerItem";
 
 const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {

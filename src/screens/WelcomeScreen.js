@@ -1,6 +1,6 @@
-import { View, StyleSheet, Image } from "react-native";
 import React from "react";
-import { Button, useTheme, Text } from "react-native-paper";
+import { Image, StyleSheet, View } from "react-native";
+import { Button, Text, useTheme } from "react-native-paper";
 
 export default function WelcomeScreen({ navigation }) {
   const theme = useTheme();

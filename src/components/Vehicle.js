@@ -1,7 +1,6 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
-import { View, StyleSheet, Image } from "react-native";
-import { useTheme, Text, IconButton } from "react-native-paper";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { IconButton, Text, useTheme } from "react-native-paper";
 
 const Vehicle = ({ vehicle, onDelete, onPress }) => {
   const theme = useTheme();

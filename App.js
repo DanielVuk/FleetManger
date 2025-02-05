@@ -1,16 +1,17 @@
 import { NavigationContainer } from "@react-navigation/native";
-import AuthNavigator from "./src/navigation/AuthNavigator";
-import AppNavigator from "./src/navigation/AppNavigator";
-import { ActivityIndicator, Snackbar, useTheme } from "react-native-paper";
-import { useContext, useEffect, useState, useCallback } from "react";
-import { AppContext } from "./src/contexts/AppContext";
-import { StyleSheet, View } from "react-native";
-import { getUser } from "./services/auth";
-import storage from "./services/storage";
 import * as SplashScreen from "expo-splash-screen";
-import { NotificationContext } from "./src/contexts/NotificationContext";
-import { getUserFleet } from "./services/fleetServices";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, Snackbar, useTheme } from "react-native-paper";
+import { getUserActivities } from "./services/activityServices";
+import { getUser } from "./services/auth";
 import { getUserCategories } from "./services/categoryServices";
+import { getUserFleet } from "./services/fleetServices";
+import storage from "./services/storage";
+import { AppContext } from "./src/contexts/AppContext";
+import { NotificationContext } from "./src/contexts/NotificationContext";
+import AppNavigator from "./src/navigation/AppNavigator";
+import AuthNavigator from "./src/navigation/AuthNavigator";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -33,14 +34,17 @@ export default function App() {
       const user = await getUser(token);
       const fleet = await getUserFleet(user.id);
       const categories = await getUserCategories(user.id);
+      const activities = await getUserActivities(user.id);
       // console.log("USER  => ", user);
       // console.log("FLEET  => ", fleet);
       // console.log("CATEGORIES  => ", categories);
+      // console.log("ACTIVITIES  => ", activities);
       setState((prevState) => ({
         ...prevState,
         user,
         fleet,
         categories,
+        activities,
       }));
     } catch (error) {
       console.error("Failed to retrieve user:", error);

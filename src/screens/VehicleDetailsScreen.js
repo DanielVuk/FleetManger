@@ -1,5 +1,4 @@
 import RNDateTimePicker from "@react-native-community/datetimepicker";
-import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { Formik } from "formik";
 import React, { useContext, useState } from "react";
@@ -33,12 +32,11 @@ const validationSchema = Yup.object().shape({
   image: Yup.string().required("Vehicle image is required"),
 });
 
-const VehicleDetailsScreen = ({ route }) => {
+const VehicleDetailsScreen = ({ route, navigation }) => {
   const { vehicle } = route.params || {};
   const [state, setState] = useContext(AppContext);
   const [showPicker, setShowPicker] = useState(false);
   const { showNotification } = useContext(NotificationContext);
-  const navigation = useNavigation();
 
   const isEditMode = !!vehicle;
 
@@ -77,7 +75,6 @@ const VehicleDetailsScreen = ({ route }) => {
 
         setState({ ...state, fleet: updatedFleet, loading: false });
         showNotification("success", `${values.name} updated successfully.`);
-        navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
       } else {
         const uploadedImageUrl = await uploadImage(values.image);
 
@@ -98,8 +95,8 @@ const VehicleDetailsScreen = ({ route }) => {
           "success",
           `${values.name} has been added to your fleet.`
         );
-        navigation.reset({ index: 0, routes: [{ name: "FleetMain" }] });
       }
+      navigation.goBack();
     } catch (error) {
       console.log(error);
       setState({
@@ -123,7 +120,7 @@ const VehicleDetailsScreen = ({ route }) => {
             vin: vehicle?.vin || "",
             purchasePrice: vehicle?.purchasePrice || "",
             registrationNumber: vehicle?.registrationNumber || "",
-            registrationDate: vehicle?.registrationDate || "",
+            registrationDate: vehicle?.registrationDate || new Date(),
             owner: vehicle?.owner || "",
             image: vehicle?.image || "",
           }}

@@ -1,3 +1,4 @@
+import { Formik } from "formik";
 import React, { useContext, useState } from "react";
 import {
   Keyboard,
@@ -5,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import {
   Button,
@@ -15,13 +17,10 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { Formik } from "formik";
 import * as Yup from "yup";
-import { View } from "react-native";
 import { addCategory, editCategory } from "../../services/categoryServices";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
-import { useNavigation } from "@react-navigation/native";
 
 const categoryIcons = [
   "fuel",
@@ -47,7 +46,7 @@ const validationSchema = Yup.object().shape({
   icon: Yup.string().required("Required"),
 });
 
-const CategoryDetailsScreen = ({ route }) => {
+const CategoryDetailsScreen = ({ route, navigation }) => {
   const { category } = route.params || {};
   const theme = useTheme();
   const [selectedIcon, setSelectedIcon] = useState(
@@ -55,7 +54,6 @@ const CategoryDetailsScreen = ({ route }) => {
   );
   const [state, setState] = useContext(AppContext);
   const { showNotification } = useContext(NotificationContext);
-  const navigation = useNavigation();
 
   const isEditMode = !!category;
 
@@ -75,7 +73,6 @@ const CategoryDetailsScreen = ({ route }) => {
         );
         setState({ ...state, categories: updatedCategories, loading: false });
         showNotification("success", `${values.name} updated successfully.`);
-        navigation.reset({ index: 0, routes: [{ name: "ActivityMain" }] });
       } else {
         const res = await addCategory({ ...values, userId: state.user.id });
 
@@ -89,8 +86,8 @@ const CategoryDetailsScreen = ({ route }) => {
           "success",
           `${values.name} has been successfully added.`
         );
-        navigation.reset({ index: 0, routes: [{ name: "ActivityMain" }] });
       }
+      navigation.goBack();
     } catch (error) {
       console.log(error);
       showNotification("error", error.message || "Something went wrong.");

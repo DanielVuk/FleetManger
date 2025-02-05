@@ -1,13 +1,30 @@
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Card, Text, IconButton, useTheme } from "react-native-paper";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-const CategoryCard = ({ category, onDelete, onEdit, onSelect }) => {
+const CategoryCard = ({ category, onDelete, onEdit, onSelect, selected }) => {
   const theme = useTheme();
   return (
-    <TouchableOpacity onPress={onSelect} activeOpacity={0.7}>
-      <Card style={[styles.card]}>
+    <TouchableOpacity
+      onPress={onSelect}
+      onLongPress={onEdit}
+      activeOpacity={0.7}
+    >
+      <Card
+        style={[
+          styles.card,
+          {
+            borderWidth: selected && selected.id === category.id ? 2 : 0,
+            borderColor:
+              selected && selected.id === category.id
+                ? theme.colors.primary
+                : "transparent",
+            transform:
+              selected && selected.id === category.id ? [{ scale: 1.05 }] : [],
+          },
+        ]}
+      >
         <Text style={styles.text}>{category.name}</Text>
         <View
           style={[
@@ -45,13 +62,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     margin: 10,
-    elevation: 3,
     backgroundColor: "white",
-  },
-  selected: {
-    borderWidth: 2,
-    borderColor: "#6200ea",
-    transform: [{ scale: 1.05 }],
   },
   iconContainer: {
     borderRadius: 30,
@@ -65,6 +76,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignSelf: "center",
   },
-  buttonContainer: { flexDirection: "row" },
+  buttonContainer: {
+    flexDirection: "row",
+  },
 });
 export default CategoryCard;

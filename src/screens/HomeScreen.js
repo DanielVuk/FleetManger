@@ -1,5 +1,5 @@
-import { View, Text } from "react-native";
 import React, { useContext } from "react";
+import { Text, View } from "react-native";
 import { Button, useTheme } from "react-native-paper";
 import storage from "../../services/storage";
 import { AppContext } from "../contexts/AppContext";
