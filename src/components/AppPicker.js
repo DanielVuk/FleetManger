@@ -8,11 +8,17 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 import PickerItem from "./PickerItem";
 
 const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filtriranje prema pretrazi
+  const filteredItems = items.filter((item) =>
+    item.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -24,12 +30,34 @@ const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
           <MaterialCommunityIcons name="chevron-down" size={20} />
         </View>
       </TouchableWithoutFeedback>
+
       <Modal visible={modalVisible} animationType="slide">
         <SafeAreaView>
+          <View style={{ padding: 20, marginBottom: -5 }}>
+            <TextInput
+              style={styles.searchInput}
+              mode="outlined"
+              placeholder="Search..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              left={<TextInput.Icon icon="magnify" />}
+              right={
+                searchQuery && (
+                  <TextInput.Icon
+                    icon="close"
+                    onPress={() => setSearchQuery("")}
+                  />
+                )
+              }
+            />
+          </View>
           <Button onPress={() => setModalVisible(false)}>Close</Button>
+
           <FlatList
-            data={items}
-            keyExtractor={(item) => (item.value ? item.value.toString() : "")}
+            data={filteredItems}
+            keyExtractor={(item) =>
+              item.value ? item.value.toString() : "none"
+            }
             renderItem={({ item }) => (
               <PickerItem
                 label={item.label}

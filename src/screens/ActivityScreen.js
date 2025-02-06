@@ -85,6 +85,16 @@ const ActivityScreen = () => {
     navigation.navigate("ActivityDetails", { activity });
   };
 
+  const filteredActivities = state.activities?.filter((activity) => {
+    const matchesVehicle = vehicle
+      ? activity.vehicleId === vehicle.value
+      : true;
+    const matchesCategory = selectedCategory
+      ? activity.categoryId === selectedCategory.id
+      : true;
+    return matchesVehicle && matchesCategory;
+  });
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ paddingHorizontal: 20 }}>
@@ -134,7 +144,7 @@ const ActivityScreen = () => {
         </View>
       </View>
       <FlatList
-        data={state.activities}
+        data={filteredActivities}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Activity
