@@ -48,12 +48,12 @@ const ActivityNavigator = () => {
 const AppNavigator = () => (
   <Tab.Navigator>
     <Tab.Screen
-      name="Fleet"
-      component={FleetNavigator}
+      name="Home"
+      component={HomeScreen}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="car" color={color} size={size} />
+          <MaterialCommunityIcons name="account" color={color} size={size} />
         ),
       }}
     />
@@ -72,12 +72,12 @@ const AppNavigator = () => (
       }}
     />
     <Tab.Screen
-      name="Home"
-      component={HomeScreen}
+      name="Fleet"
+      component={FleetNavigator}
       options={{
         headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="account" color={color} size={size} />
+          <MaterialCommunityIcons name="car" color={color} size={size} />
         ),
       }}
     />

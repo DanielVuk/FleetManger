@@ -148,7 +148,7 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
                 )}
               </TouchableOpacity>
               {errors.image && touched.image && (
-                <HelperText style={{ marginTop: -20 }} type="error">
+                <HelperText style={styles.helperText} type="error">
                   {errors.image}
                 </HelperText>
               )}
@@ -325,6 +325,9 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
     width: "100%",
+  },
+  helperText: {
+    marginTop: -20,
   },
   row: {
     flexDirection: "row",

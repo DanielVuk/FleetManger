@@ -1,38 +1,51 @@
-import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { Formik } from "formik";
 import React, { useContext, useState } from "react";
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { Button, HelperText, TextInput } from "react-native-paper";
 import * as Yup from "yup";
 import { addActivity, editActivity } from "../../services/activityServices";
 import AppPicker from "../components/AppPicker";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
-
-const validationSchema = Yup.object().shape({
-  vehicle: Yup.object().required(),
-  category: Yup.object().required(),
-  name: Yup.string().required(),
-  date: Yup.date().required(),
-  mileage: Yup.number().required().min(0).integer(),
-  amount: Yup.number().nullable().min(0),
-  location: Yup.string(),
-  notes: Yup.string(),
-});
+import { getLastMileage } from "../utils/getLastMileage";
 
 const ActivityDetailsScreen = ({ route, navigation }) => {
   const { activity } = route.params || {};
   const [state, setState] = useContext(AppContext);
-  const [showPicker, setShowPicker] = useState(false);
   const { showNotification } = useContext(NotificationContext);
   const isEditMode = !!activity;
+
+  const validationSchema = Yup.object().shape({
+    vehicle: Yup.object().required(),
+    category: Yup.object().required(),
+    name: Yup.string().required(),
+    date: Yup.date().required(),
+    mileage: Yup.number()
+      .required("Mileage is required")
+      .min(0, "Mileage cannot be negative")
+      .integer("Mileage must be an integer")
+      .test(
+        "mileage-valid",
+        "Mileage cannot be less than the last recorded mileage",
+        (value, context) => {
+          const { vehicle } = context.parent;
+          if (vehicle && vehicle.value) {
+            const lastMileage = getLastMileage(vehicle.value, state);
+            if (value < lastMileage) return false;
+          }
+          return true;
+        }
+      ),
+    amount: Yup.number().nullable().min(0),
+    location: Yup.string(),
+    notes: Yup.string(),
+  });
 
   const handleSubmit = async (values) => {
     try {
@@ -143,6 +156,12 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   }))}
                   placeholder="Choose vehicle"
                 />
+                {errors.vehicle && touched.vehicle && (
+                  <HelperText type="error" style={styles.helperText}>
+                    {errors.vehicle}
+                  </HelperText>
+                )}
+
                 <AppPicker
                   selectedItem={values.category}
                   onSelectItem={(item) => setFieldValue("category", item)}
@@ -152,6 +171,11 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   }))}
                   placeholder="Choose category"
                 />
+                {errors.category && touched.category && (
+                  <HelperText type="error" style={styles.helperText}>
+                    {errors.category}
+                  </HelperText>
+                )}
                 <TextInput
                   label="Name"
                   mode="outlined"
@@ -160,6 +184,11 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   style={styles.input}
                   error={errors.name && touched.name}
                 />
+                {errors.name && touched.name && (
+                  <HelperText type="error" style={styles.helperText}>
+                    {errors.name}
+                  </HelperText>
+                )}
                 <TextInput
                   label="Mileage"
                   mode="outlined"
@@ -168,38 +197,17 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   onChangeText={handleChange("mileage")}
                   style={styles.input}
                   error={errors.mileage && touched.mileage}
-                />
-                <TextInput
-                  editable={false}
-                  label="Date"
-                  mode="outlined"
-                  style={styles.input}
-                  onPressIn={() => {
-                    Keyboard.dismiss();
-                    setShowPicker(true);
-                  }}
-                  value={
-                    values.date
-                      ? new Date(values.date).toLocaleDateString()
-                      : ""
+                  helperText={
+                    errors.mileage && touched.mileage ? errors.mileage : ""
                   }
+                  editable={!isEditMode}
                 />
-                {showPicker && (
-                  <RNDateTimePicker
-                    style={{ alignSelf: "center" }}
-                    value={values.date ? new Date(values.date) : new Date()}
-                    mode="date"
-                    display="spinner"
-                    onChange={(event, selectedDate) => {
-                      if (selectedDate) {
-                        setFieldValue("date", selectedDate.toISOString());
-                      }
-                    }}
-                  />
+                {errors.mileage && touched.mileage && (
+                  <HelperText type="error" style={styles.helperText}>
+                    {errors.mileage}
+                  </HelperText>
                 )}
-                {showPicker && (
-                  <Button onPress={() => setShowPicker(false)}>Confirm</Button>
-                )}
+
                 <TextInput
                   label="Amount"
                   mode="outlined"
@@ -214,6 +222,17 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   value={values.location}
                   onChangeText={handleChange("location")}
                   style={styles.input}
+                />
+                <TextInput
+                  editable={false}
+                  label="Date"
+                  mode="outlined"
+                  style={styles.input}
+                  value={
+                    values.date
+                      ? new Date(values.date).toLocaleDateString()
+                      : ""
+                  }
                 />
                 <TextInput
                   label="Note"
@@ -243,6 +262,9 @@ const styles = StyleSheet.create({
   input: {
     marginVertical: 10,
     backgroundColor: "white",
+  },
+  helperText: {
+    marginTop: -15,
   },
   button: {
     marginTop: 20,
