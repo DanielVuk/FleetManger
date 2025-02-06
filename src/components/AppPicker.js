@@ -15,7 +15,6 @@ const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filtriranje prema pretrazi
   const filteredItems = items.filter((item) =>
     item.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -27,7 +26,17 @@ const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
           <Text variant="titleMedium">
             {selectedItem ? selectedItem.label : placeholder}
           </Text>
-          <MaterialCommunityIcons name="chevron-down" size={20} />
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {selectedItem && (
+              <MaterialCommunityIcons
+                name="close-circle-outline"
+                size={25}
+                onPress={() => onSelectItem(null)}
+                style={{ marginRight: 10 }}
+              />
+            )}
+            <MaterialCommunityIcons name="chevron-down" size={20} />
+          </View>
         </View>
       </TouchableWithoutFeedback>
 

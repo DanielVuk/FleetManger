@@ -3,8 +3,15 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-const CategoryCard = ({ category, onDelete, onEdit, onSelect, selected }) => {
+const Category = ({ category, onDelete, onEdit, onSelect, selected }) => {
   const theme = useTheme();
+
+  const borderColor =
+    selected && selected.id === category.id
+      ? theme.colors.primary
+      : category.type === "expense"
+      ? theme.colors.error
+      : theme.colors.success;
   return (
     <TouchableOpacity
       onPress={onSelect}
@@ -15,11 +22,8 @@ const CategoryCard = ({ category, onDelete, onEdit, onSelect, selected }) => {
         style={[
           styles.card,
           {
-            borderWidth: selected && selected.id === category.id ? 2 : 0,
-            borderColor:
-              selected && selected.id === category.id
-                ? theme.colors.primary
-                : "transparent",
+            borderWidth: 1,
+            borderColor: borderColor,
             transform:
               selected && selected.id === category.id ? [{ scale: 1.05 }] : [],
           },
@@ -80,4 +84,4 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
-export default CategoryCard;
+export default Category;

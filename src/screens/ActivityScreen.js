@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useState } from "react";
 import {
+  Alert,
   FlatList,
   SafeAreaView,
   ScrollView,
@@ -26,26 +27,59 @@ const ActivityScreen = () => {
   const { showNotification } = useContext(NotificationContext);
 
   const handleDeleteCategory = async (category) => {
-    try {
-      setState({ ...state, loading: true });
-      await deleteCategory(category.id);
+    Alert.alert(
+      "Delete Confirmation",
+      `Are you sure you want to delete ${category.name}? This will also delete all associated activities.`,
+      [
+        {
+          text: "Cancel",
+        },
+        {
+          text: "Confirm",
+          onPress: async () => {
+            try {
+              setState({ ...state, loading: true });
 
-      let newCategories = [...state.categories].filter(
-        (c) => c.id !== category.id
-      );
+              await deleteCategory(category.id);
+              const activitesForDelete = state.activities.filter(
+                (a) => a.categoryId === category.id
+              );
 
-      setState((prevState) => ({
-        ...prevState,
-        categories: newCategories,
-        loading: false,
-      }));
+              await Promise.all(
+                activitesForDelete.map((a) => deleteActivity(a.id))
+              );
 
-      showNotification("success", `${category.name} is successfully deleted!`);
-    } catch (error) {
-      console.log(error);
-      showNotification("error", error.message || "Something went wrong.");
-      setState((prevState) => ({ ...prevState, loading: false }));
-    }
+              let newCategories = state.categories.filter(
+                (c) => c.id !== category.id
+              );
+
+              const newActivities = state.activities.filter(
+                (a) => a.categoryId !== category.id
+              );
+
+              setState((prevState) => ({
+                ...prevState,
+                categories: newCategories,
+                activities: newActivities,
+                loading: false,
+              }));
+
+              showNotification(
+                "success",
+                `${category.name} is successfully deleted!`
+              );
+            } catch (error) {
+              console.log(error);
+              showNotification(
+                "error",
+                error.message || "Something went wrong."
+              );
+              setState((prevState) => ({ ...prevState, loading: false }));
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleEditCategory = (category) => {
