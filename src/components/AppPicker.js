@@ -11,7 +11,13 @@ import {
 import { Button, Text, TextInput } from "react-native-paper";
 import PickerItem from "./PickerItem";
 
-const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
+const AppPicker = ({
+  items,
+  onSelectItem,
+  placeholder,
+  selectedItem,
+  disabled,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -21,13 +27,15 @@ const AppPicker = ({ items, onSelectItem, placeholder, selectedItem }) => {
 
   return (
     <>
-      <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
-        <View style={styles.container}>
+      <TouchableWithoutFeedback
+        onPress={() => !disabled && setModalVisible(true)}
+      >
+        <View style={[styles.container, disabled && { opacity: 0.6 }]}>
           <Text variant="titleMedium">
             {selectedItem ? selectedItem.label : placeholder}
           </Text>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {selectedItem && (
+            {selectedItem && !disabled && (
               <MaterialCommunityIcons
                 name="close-circle-outline"
                 size={25}

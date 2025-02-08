@@ -1,9 +1,10 @@
 import axios from "axios";
 import storage from "../services/storage";
+import { BASE_URL } from "@env";
 
 const addActivity = async (activity) => {
   const token = await storage.getToken();
-  const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/activities.json?auth=${token}`;
+  const endpoint = `${process.env.BASE_URL}/activities.json?auth=${token}`;
 
   try {
     const res = await axios.post(endpoint, {
@@ -18,7 +19,7 @@ const addActivity = async (activity) => {
 
 const deleteActivity = async (activityId) => {
   const token = await storage.getToken();
-  const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/activities/${activityId}.json?auth=${token}`;
+  const endpoint = `${process.env.BASE_URL}/activities/${activityId}.json?auth=${token}`;
 
   try {
     return await axios.delete(endpoint);
@@ -30,7 +31,7 @@ const deleteActivity = async (activityId) => {
 const editActivity = async (activity) => {
   const { id, ...activityData } = activity;
   const token = await storage.getToken();
-  const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/activities/${id}.json?auth=${token}`;
+  const endpoint = `${process.env.BASE_URL}/activities/${id}.json?auth=${token}`;
 
   try {
     return await axios.put(endpoint, activityData);
@@ -41,7 +42,7 @@ const editActivity = async (activity) => {
 
 const getUserActivities = async (userId) => {
   const token = await storage.getToken();
-  const endpoint = `https://fleetmanager-2afe4-default-rtdb.europe-west1.firebasedatabase.app/activities.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
+  const endpoint = `${process.env.BASE_URL}/activities.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
   try {
     let result = await axios.get(endpoint);
 

@@ -18,6 +18,8 @@ import { addVehicle, editVehicle } from "../../services/fleetServices";
 import { uploadImage } from "../../services/uploadImage";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
+import { getReminders } from "../utils/getReminders";
+import Reminder from "../components/Reminder";
 
 const { width } = Dimensions.get("window");
 const validationSchema = Yup.object().shape({
@@ -64,6 +66,7 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
           id: vehicle.id,
           ...values,
           image: uploadedImageUrl,
+          reminders: vehicle.reminders,
           userId: state.user.id,
         };
 
@@ -183,6 +186,7 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
               <View style={styles.row}>
                 <View style={styles.inputContainer}>
                   <TextInput
+                    editable={!isEditMode}
                     error={touched.mileage && errors.mileage}
                     keyboardType="numeric"
                     label="Mileage"
@@ -297,6 +301,8 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
             </>
           )}
         </Formik>
+
+        {vehicle && <Reminder reminders={getReminders(vehicle, state)} />}
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -305,6 +311,7 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
+    flex: 1,
   },
 
   title: {

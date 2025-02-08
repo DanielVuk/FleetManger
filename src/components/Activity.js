@@ -20,7 +20,7 @@ const Activity = ({ activity, onDelete, onEdit }) => {
         />
         <View style={styles.content}>
           <Text style={styles.name}>{activity.name}</Text>
-          {activity.amount && (
+          {activity.amount !== null && (
             <Text style={styles.amount}>{activity.amount} EUR</Text>
           )}
         </View>
@@ -43,13 +43,13 @@ const Activity = ({ activity, onDelete, onEdit }) => {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: "#fff",
+    borderRadius: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginVertical: 8,
     padding: 15,
-    borderRadius: 10,
   },
   content: {
     flex: 1,

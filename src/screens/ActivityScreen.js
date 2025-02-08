@@ -12,11 +12,13 @@ import {
 import { Icon, IconButton, Text, useTheme } from "react-native-paper";
 import { deleteActivity } from "../../services/activityServices";
 import { deleteCategory } from "../../services/categoryServices";
+import { editVehicle } from "../../services/fleetServices";
 import Activity from "../components/Activity";
 import AppPicker from "../components/AppPicker";
 import Category from "../components/Category";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
+import { updateVehicleReminders } from "../utils/updateVehicleReminders";
 
 const ActivityScreen = () => {
   const [state, setState] = useContext(AppContext);
@@ -41,10 +43,10 @@ const ActivityScreen = () => {
               setState({ ...state, loading: true });
 
               await deleteCategory(category.id);
+
               const activitesForDelete = state.activities.filter(
                 (a) => a.categoryId === category.id
               );
-
               await Promise.all(
                 activitesForDelete.map((a) => deleteActivity(a.id))
               );
@@ -57,10 +59,26 @@ const ActivityScreen = () => {
                 (a) => a.categoryId !== category.id
               );
 
+              const updatedFleet = await Promise.all(
+                state.fleet.map(async (v) => {
+                  if (v.reminders?.some((r) => r.categoryId === category.id)) {
+                    const updatedVehicle = await updateVehicleReminders(
+                      v.id,
+                      category.id,
+                      state,
+                      "remove"
+                    );
+                    return updatedVehicle ? updatedVehicle : v;
+                  }
+                  return v;
+                })
+              );
+
               setState((prevState) => ({
                 ...prevState,
                 categories: newCategories,
                 activities: newActivities,
+                fleet: updatedFleet,
                 loading: false,
               }));
 
@@ -107,6 +125,29 @@ const ActivityScreen = () => {
         loading: false,
       }));
 
+      const remainingActivities = newActivities.filter(
+        (a) =>
+          a.vehicleId === activity.vehicleId &&
+          a.categoryId === activity.categoryId
+      );
+
+      if (remainingActivities.length === 0) {
+        const updatedVehicle = await updateVehicleReminders(
+          activity.vehicleId,
+          activity.categoryId,
+          state,
+          "remove"
+        );
+        if (updatedVehicle) {
+          setState((prevState) => ({
+            ...prevState,
+            fleet: prevState.fleet.map((v) =>
+              v.id === activity.vehicleId ? updatedVehicle : v
+            ),
+          }));
+        }
+      }
+
       showNotification("success", `${activity.name} is successfully deleted!`);
     } catch (error) {
       console.log(error);
@@ -135,7 +176,7 @@ const ActivityScreen = () => {
         <AppPicker
           selectedItem={vehicle}
           onSelectItem={(item) => setVehicle(item)}
-          items={state?.fleet.map((v) => ({
+          items={state?.fleet?.map((v) => ({
             label: `${v.name} - ${v.registrationNumber}`,
             value: v.id,
           }))}
@@ -153,7 +194,7 @@ const ActivityScreen = () => {
           >
             <Icon source="plus" size={30} color={theme.colors.primary} />
           </TouchableOpacity>
-          {state.categories?.map((category) => {
+          {state?.categories?.map((category) => {
             return (
               <Category
                 key={category.id}
@@ -178,7 +219,7 @@ const ActivityScreen = () => {
         </View>
       </View>
       <FlatList
-        data={filteredActivities}
+        data={[...filteredActivities].reverse()}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Activity

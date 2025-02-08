@@ -44,6 +44,8 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().max(25).required("Required"),
   type: Yup.string().oneOf(["income", "expense"]).required("Required"),
   icon: Yup.string().required("Required"),
+  mileageInterval: Yup.number().min(0).nullable(),
+  timeInterval: Yup.number().min(0).nullable(),
 });
 
 const CategoryDetailsScreen = ({ route, navigation }) => {
@@ -106,6 +108,8 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
             name: category?.name || "",
             type: category?.type || "income",
             icon: category?.icon || categoryIcons[0],
+            mileageInterval: category?.mileageInterval || "",
+            timeInterval: category?.timeInterval || "",
           }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
@@ -123,7 +127,6 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
                 style={styles.input}
                 value={values.name}
               />
-
               <SegmentedButtons
                 value={values.type}
                 onValueChange={(value) => setFieldValue("type", value)}
@@ -142,7 +145,6 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
                   },
                 ]}
               />
-
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -172,11 +174,33 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
                   </Card>
                 ))}
               </ScrollView>
-              <Button
-                mode="contained"
-                onPress={handleSubmit}
-                style={styles.button}
-              >
+              <View style={styles.reminderSection}>
+                <Text variant="bodyLarge" style={styles.reminderText}>
+                  Set a reminder for activities of this category using
+                  intervals:
+                </Text>
+
+                <TextInput
+                  error={!!errors.mileageInterval}
+                  label="Mileage Interval"
+                  mode="outlined"
+                  keyboardType="numeric"
+                  onChangeText={handleChange("mileageInterval")}
+                  style={styles.input}
+                  value={values.mileageInterval?.toString()}
+                />
+
+                <TextInput
+                  error={!!errors.timeInterval}
+                  label="Time Interval (in days)"
+                  mode="outlined"
+                  keyboardType="numeric"
+                  onChangeText={handleChange("timeInterval")}
+                  style={styles.input}
+                  value={values.timeInterval?.toString()}
+                />
+              </View>
+              <Button mode="contained" onPress={handleSubmit}>
                 {isEditMode ? "Update Category" : "Add Category"}
               </Button>
             </View>
@@ -188,18 +212,30 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  iconScroll: { marginVertical: 15 },
-
+  iconScroll: {
+    marginVertical: 15,
+  },
   iconCard: {
+    alignItems: "center",
+    backgroundColor: "white",
+    justifyContent: "center",
     margin: 5,
     padding: 10,
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
   },
-
-  input: { marginVertical: 15, backgroundColor: "white" },
-  button: { marginTop: 15 },
+  input: {
+    backgroundColor: "white",
+    marginVertical: 15,
+  },
+  reminderSection: {
+    backgroundColor: "white",
+    borderRadius: 15,
+    marginVertical: 20,
+    padding: 15,
+  },
+  reminderText: {
+    color: "grey",
+    marginVertical: 5,
+  },
 });
 
 export default CategoryDetailsScreen;

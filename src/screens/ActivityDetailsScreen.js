@@ -1,5 +1,5 @@
 import { Formik } from "formik";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +13,8 @@ import { addActivity, editActivity } from "../../services/activityServices";
 import AppPicker from "../components/AppPicker";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
-import { getLastMileage } from "../utils/getLastMileage";
+import { getCurrentMileage } from "../utils/getCurrentMileage";
+import { updateVehicleReminders } from "../utils/updateVehicleReminders";
 
 const ActivityDetailsScreen = ({ route, navigation }) => {
   const { activity } = route.params || {};
@@ -36,7 +37,7 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
         (value, context) => {
           const { vehicle } = context.parent;
           if (vehicle && vehicle.value) {
-            const lastMileage = getLastMileage(vehicle.value, state);
+            const lastMileage = getCurrentMileage(vehicle.value, state);
             if (value < lastMileage) return false;
           }
           return true;
@@ -50,7 +51,6 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
   const handleSubmit = async (values) => {
     try {
       setState({ ...state, loading: true });
-
       if (isEditMode) {
         const updatedActivity = {
           id: activity.id,
@@ -89,11 +89,29 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
 
         const result = await addActivity(newActivity);
 
-        setState((prevState) => ({
-          ...prevState,
-          activities: [...prevState.activities, { ...result }],
-          loading: false,
-        }));
+        let updatedVehicle = await updateVehicleReminders(
+          values.vehicle.value,
+          values.category.value,
+          state,
+          "add"
+        );
+
+        if (updatedVehicle) {
+          setState((prevState) => ({
+            ...prevState,
+            activities: [...prevState.activities, { ...result }],
+            fleet: prevState.fleet.map((v) =>
+              v.id === values.vehicle.value ? updatedVehicle : v
+            ),
+            loading: false,
+          }));
+        } else {
+          setState((prevState) => ({
+            ...prevState,
+            activities: [...prevState.activities, { ...result }],
+            loading: false,
+          }));
+        }
         showNotification(
           "success",
           `${values.name} has been successfully added.`
@@ -150,11 +168,12 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                 <AppPicker
                   selectedItem={values.vehicle}
                   onSelectItem={(item) => setFieldValue("vehicle", item)}
-                  items={state?.fleet.map((v) => ({
+                  items={state?.fleet?.map((v) => ({
                     label: `${v.name} - ${v.registrationNumber}`,
                     value: v.id,
                   }))}
                   placeholder="Choose vehicle"
+                  disabled={isEditMode}
                 />
                 {errors.vehicle && touched.vehicle && (
                   <HelperText type="error" style={styles.helperText}>
@@ -165,11 +184,12 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                 <AppPicker
                   selectedItem={values.category}
                   onSelectItem={(item) => setFieldValue("category", item)}
-                  items={state?.categories.map((c) => ({
+                  items={state?.categories?.map((c) => ({
                     label: `${c.name}`,
                     value: c.id,
                   }))}
                   placeholder="Choose category"
+                  disabled={isEditMode}
                 />
                 {errors.category && touched.category && (
                   <HelperText type="error" style={styles.helperText}>
@@ -190,25 +210,6 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   </HelperText>
                 )}
                 <TextInput
-                  label="Mileage"
-                  mode="outlined"
-                  keyboardType="numeric"
-                  value={values.mileage}
-                  onChangeText={handleChange("mileage")}
-                  style={styles.input}
-                  error={errors.mileage && touched.mileage}
-                  helperText={
-                    errors.mileage && touched.mileage ? errors.mileage : ""
-                  }
-                  editable={!isEditMode}
-                />
-                {errors.mileage && touched.mileage && (
-                  <HelperText type="error" style={styles.helperText}>
-                    {errors.mileage}
-                  </HelperText>
-                )}
-
-                <TextInput
                   label="Amount"
                   mode="outlined"
                   keyboardType="numeric"
@@ -216,6 +217,21 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   onChangeText={handleChange("amount")}
                   style={styles.input}
                 />
+                <TextInput
+                  label="Mileage"
+                  mode="outlined"
+                  keyboardType="numeric"
+                  value={values.mileage}
+                  onChangeText={handleChange("mileage")}
+                  style={[styles.input, isEditMode && { opacity: 0.6 }]}
+                  error={errors.mileage && touched.mileage}
+                  editable={!isEditMode}
+                />
+                {errors.mileage && touched.mileage && (
+                  <HelperText type="error" style={styles.helperText}>
+                    {errors.mileage}
+                  </HelperText>
+                )}
                 <TextInput
                   label="Location"
                   mode="outlined"
@@ -227,7 +243,7 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   editable={false}
                   label="Date"
                   mode="outlined"
-                  style={styles.input}
+                  style={[styles.input, { opacity: 0.6 }]}
                   value={
                     values.date
                       ? new Date(values.date).toLocaleDateString()
@@ -247,7 +263,7 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
                   onPress={handleSubmit}
                   style={styles.button}
                 >
-                  {isEditMode ? "Update Activity" : " Add Activity"}
+                  {isEditMode ? "Update Activity" : "Add Activity"}
                 </Button>
               </>
             )}
