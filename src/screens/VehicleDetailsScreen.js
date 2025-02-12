@@ -4,6 +4,7 @@ import { Formik } from "formik";
 import React, { useContext, useState } from "react";
 import {
   Dimensions,
+  FlatList,
   Image,
   Keyboard,
   SafeAreaView,
@@ -12,14 +13,20 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, HelperText, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  HelperText,
+  IconButton,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import * as Yup from "yup";
 import { addVehicle, editVehicle } from "../../services/fleetServices";
 import { uploadImage } from "../../services/uploadImage";
+import Reminder from "../components/Reminder";
 import { AppContext } from "../contexts/AppContext";
 import { NotificationContext } from "../contexts/NotificationContext";
 import { getReminders } from "../utils/getReminders";
-import Reminder from "../components/Reminder";
 
 const { width } = Dimensions.get("window");
 const validationSchema = Yup.object().shape({
@@ -112,9 +119,22 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <SafeAreaView style={styles.container}>
-        <Text variant="headlineSmall" style={styles.title}>
-          Adding a vehicle to the fleet
-        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            icon="chevron-left"
+            size={40}
+            onPress={() => navigation.goBack()}
+          />
+          <Text variant="headlineSmall">
+            {isEditMode ? "Edit " : "Add "}Vehicle
+          </Text>
+        </View>
         <Formik
           initialValues={{
             name: vehicle?.name || "",
@@ -155,7 +175,6 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
                   {errors.image}
                 </HelperText>
               )}
-
               <View style={styles.row}>
                 <View style={styles.inputContainer}>
                   <TextInput
@@ -236,7 +255,9 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
                     label="Registration Number"
                     mode="outlined"
                     onBlur={() => setFieldTouched("registrationNumber")}
-                    onChangeText={handleChange("registrationNumber")}
+                    onChangeText={(text) =>
+                      setFieldValue("registrationNumber", text.toUpperCase())
+                    }
                     style={styles.input}
                     error={
                       touched.registrationNumber && errors.registrationNumber
@@ -302,7 +323,13 @@ const VehicleDetailsScreen = ({ route, navigation }) => {
           )}
         </Formik>
 
-        {vehicle && <Reminder reminders={getReminders(vehicle, state)} />}
+        {vehicle && (
+          <FlatList
+            data={getReminders(vehicle, state)}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => <Reminder reminder={item} />}
+          />
+        )}
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -314,10 +341,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  title: {
-    alignSelf: "center",
-    marginBottom: 20,
-  },
   imageContainer: {
     alignItems: "center",
     backgroundColor: "#ddd",

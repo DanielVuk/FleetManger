@@ -1,17 +1,28 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { IconButton, Text, useTheme } from "react-native-paper";
+import { getCurrentMileage } from "../utils/getCurrentMileage";
+import { AppContext } from "../contexts/AppContext";
 
 const Vehicle = ({ vehicle, onDelete, onPress }) => {
+  const [state] = useContext(AppContext);
   const theme = useTheme();
 
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <Image style={styles.image} source={{ uri: vehicle.image }} />
       <View style={styles.contentContainer}>
-        <Text style={styles.title} variant="titleSmall">
-          {vehicle.name}
-        </Text>
+        <View>
+          <Text
+            style={[styles.title, { color: theme.colors.primary }]}
+            variant="titleSmall"
+          >
+            {vehicle.name} - {vehicle.registrationNumber}
+          </Text>
+          <Text style={{ color: theme.colors.secondary }} variant="titleSmall">
+            Current mileage: {getCurrentMileage(vehicle.id, state)}
+          </Text>
+        </View>
         <IconButton
           icon="delete"
           iconColor={theme.colors.error}

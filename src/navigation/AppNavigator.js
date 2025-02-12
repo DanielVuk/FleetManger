@@ -13,9 +13,8 @@ import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const FleetNavigator = () => {
+const HomeNavigator = () => {
   const theme = useTheme();
-
   return (
     <Stack.Navigator
       screenOptions={{
@@ -23,7 +22,7 @@ const FleetNavigator = () => {
         cardStyle: { backgroundColor: theme.colors.background },
       }}
     >
-      <Stack.Screen name="FleetMain" component={FleetScreen} />
+      <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />
     </Stack.Navigator>
   );
@@ -45,15 +44,29 @@ const ActivityNavigator = () => {
   );
 };
 
+const FleetNavigator = () => {
+  const theme = useTheme();
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: theme.colors.background },
+      }}
+    >
+      <Stack.Screen name="FleetMain" component={FleetScreen} />
+      <Stack.Screen name="VehicleDetails" component={VehicleDetailsScreen} />
+    </Stack.Navigator>
+  );
+};
+
 const AppNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator screenOptions={{ headerShown: false }}>
     <Tab.Screen
       name="Home"
-      component={HomeScreen}
+      component={HomeNavigator}
       options={{
-        headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="account" color={color} size={size} />
+          <MaterialCommunityIcons color={color} name="account" size={size} />
         ),
       }}
     />
@@ -61,11 +74,10 @@ const AppNavigator = () => (
       name="Activity"
       component={ActivityNavigator}
       options={{
-        headerShown: false,
         tabBarIcon: ({ color, size }) => (
           <MaterialCommunityIcons
-            name="format-list-bulleted"
             color={color}
+            name="format-list-bulleted"
             size={size}
           />
         ),
@@ -75,9 +87,8 @@ const AppNavigator = () => (
       name="Fleet"
       component={FleetNavigator}
       options={{
-        headerShown: false,
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="car" color={color} size={size} />
+          <MaterialCommunityIcons color={color} name="car" size={size} />
         ),
       }}
     />

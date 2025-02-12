@@ -103,6 +103,22 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <SafeAreaView>
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            icon="chevron-left"
+            size={40}
+            onPress={() => navigation.goBack()}
+          />
+          <Text variant="headlineSmall">
+            {isEditMode ? "Edit " : "Add "}Category
+          </Text>
+        </View>
         <Formik
           initialValues={{
             name: category?.name || "",
@@ -115,10 +131,7 @@ const CategoryDetailsScreen = ({ route, navigation }) => {
           onSubmit={handleSubmit}
         >
           {({ handleChange, handleSubmit, setFieldValue, errors, values }) => (
-            <View style={{ padding: 20 }}>
-              <Text variant="headlineMedium">
-                {isEditMode ? `Edit Category` : "Add Category"}
-              </Text>
+            <View style={{ paddingHorizontal: 20 }}>
               <TextInput
                 error={!!errors.name}
                 label="Category Name"

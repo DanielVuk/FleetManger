@@ -80,7 +80,7 @@ const FleetScreen = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={{ padding: 20 }}>
         <View style={styles.header}>
-          <Text variant="headlineSmall">My Fleet</Text>
+          <Text variant="headlineSmall">My Fleet: {state.fleet.length}</Text>
           <IconButton
             icon="plus"
             size={30}

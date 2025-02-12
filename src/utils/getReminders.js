@@ -1,51 +1,41 @@
 import { getCurrentMileage } from "./getCurrentMileage";
 
+const MILEAGE_THRESHOLD = 2000;
+const TIME_THRESHOLD = 7;
+
 export const getReminders = (vehicle, state, upcomingOnly = false) => {
+  if (!vehicle.reminders?.length) return [];
+
   const reminderMessages = [];
-  const MILEAGE_THRESHOLD = 2000;
-  const TIME_THRESHOLD = 7;
 
-  console.log("VOZILO: ", vehicle.name);
+  const vehicleActivities = state.activities.filter(
+    (activity) => activity.vehicleId === vehicle.id
+  );
 
-  if (!vehicle.reminders || vehicle.reminders.length === 0) return [];
+  const vehicleCategories = state.categories.filter((category) =>
+    vehicle.reminders.some((r) => r.categoryId === category.id)
+  );
 
-  console.log("REMINDERS: ", vehicle.reminders);
-
-  vehicle.reminders.forEach((r) => {
-    const category = state.categories.find((c) => c.id === r.categoryId);
-    console.log("REMINDER- KATEGORIJA: ", category?.name);
-
-    if (!category) return;
-
+  vehicleCategories.forEach((category) => {
     const { mileageInterval, timeInterval } = category;
 
-    const lastActivity = state.activities
-      .filter(
-        (activity) =>
-          activity.vehicleId === vehicle.id &&
-          activity.categoryId === category.id
-      )
+    const lastActivity = vehicleActivities
+      .filter((activity) => activity.categoryId === category.id)
       .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    console.log("AKTIVNOST: ", lastActivity);
 
     if (mileageInterval) {
       const currentMileage = getCurrentMileage(vehicle.id, state);
       const lastCategoryMileage = lastActivity
         ? lastActivity.mileage
         : vehicle.mileage;
-
       const mileageDifference = currentMileage - lastCategoryMileage;
       const remainingMileage = mileageInterval - mileageDifference;
 
-      if (upcomingOnly) {
-        if (remainingMileage <= MILEAGE_THRESHOLD) {
-          reminderMessages.push(
-            `${category.name} is due within ${remainingMileage} km.`
-          );
-        }
-      } else {
+      if (!upcomingOnly || remainingMileage <= MILEAGE_THRESHOLD) {
         reminderMessages.push(
-          `${category.name} is due within ${remainingMileage} km.`
+          remainingMileage >= 0
+            ? `${category.name} is due within ${remainingMileage} km.`
+            : `${category.name} was due ${Math.abs(remainingMileage)} km ago.`
         );
       }
     }
@@ -57,21 +47,15 @@ export const getReminders = (vehicle, state, upcomingOnly = false) => {
       );
       const remainingTime = timeInterval - daysSinceLastService;
 
-      if (upcomingOnly) {
-        if (remainingTime <= TIME_THRESHOLD) {
-          reminderMessages.push(
-            `${category.name} is due in ${remainingTime} days.`
-          );
-        }
-      } else {
+      if (!upcomingOnly || remainingTime <= TIME_THRESHOLD) {
         reminderMessages.push(
-          `${category.name} is due in ${remainingTime} days.`
+          remainingTime >= 0
+            ? `${category.name} is due in ${remainingTime} days.`
+            : `${category.name} was due ${Math.abs(remainingTime)} days ago.`
         );
       }
     }
   });
-
-  console.log("PORUKE: ", reminderMessages);
 
   return reminderMessages;
 };

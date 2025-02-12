@@ -1,6 +1,11 @@
 import { Formik } from "formik";
 import React, { useContext } from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  Keyboard,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import {
   Button,
   HelperText,
@@ -55,68 +60,78 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineLarge" style={styles.title}>
-        Sign In to FleetManager
-      </Text>
-      <Text style={styles.subtitle}>
-        Welcome back! Get access to your fleet
-      </Text>
-      <Formik
-        initialValues={{ email: "", password: "" }}
-        onSubmit={handleLogin}
-        validationSchema={validationSchema}
-      >
-        {({ handleChange, handleSubmit, errors, setFieldTouched, touched }) => (
-          <>
-            <TextInput
-              autoCapitalize="none"
-              keyboardType="email-address"
-              label="Email"
-              left={
-                <TextInput.Icon icon="account" color={theme.colors.primary} />
-              }
-              mode="outlined"
-              onBlur={() => setFieldTouched("email")}
-              onChangeText={handleChange("email")}
-              style={styles.input}
-            />
-            <HelperText style={styles.errorMsg} type="error">
-              {touched.email && errors.email}
-            </HelperText>
-            <TextInput
-              label="Password"
-              left={<TextInput.Icon icon="lock" color={theme.colors.primary} />}
-              mode="outlined"
-              onBlur={() => setFieldTouched("password")}
-              onChangeText={handleChange("password")}
-              secureTextEntry
-              style={styles.input}
-            />
-            <HelperText type="error" style={styles.errorMsg}>
-              {touched.password && errors.password}
-            </HelperText>
-            <Button
-              buttonColor={theme.colors.primary}
-              labelStyle={styles.buttonText}
-              mode="contained"
-              onPress={handleSubmit}
-              style={styles.button}
-            >
-              Login
-            </Button>
-          </>
-        )}
-      </Formik>
-      <Button
-        mode="text"
-        onPress={() => navigation.navigate("Register")}
-        style={styles.link}
-        textColor={theme.colors.secondary}
-      >
-        Don’t have an account? Register
-      </Button>
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <Text variant="headlineLarge" style={styles.title}>
+          Sign In to FleetManager
+        </Text>
+        <Text style={styles.subtitle}>
+          Welcome back! Get access to your fleet
+        </Text>
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          onSubmit={handleLogin}
+          validationSchema={validationSchema}
+        >
+          {({
+            handleChange,
+            handleSubmit,
+            errors,
+            setFieldTouched,
+            touched,
+          }) => (
+            <>
+              <TextInput
+                autoCapitalize="none"
+                keyboardType="email-address"
+                label="Email"
+                left={
+                  <TextInput.Icon icon="account" color={theme.colors.primary} />
+                }
+                mode="outlined"
+                onBlur={() => setFieldTouched("email")}
+                onChangeText={handleChange("email")}
+                style={styles.input}
+              />
+              <HelperText style={styles.errorMsg} type="error">
+                {touched.email && errors.email}
+              </HelperText>
+              <TextInput
+                label="Password"
+                left={
+                  <TextInput.Icon icon="lock" color={theme.colors.primary} />
+                }
+                mode="outlined"
+                onBlur={() => setFieldTouched("password")}
+                onChangeText={handleChange("password")}
+                secureTextEntry
+                style={styles.input}
+              />
+              <HelperText type="error" style={styles.errorMsg}>
+                {touched.password && errors.password}
+              </HelperText>
+              <Button
+                buttonColor={theme.colors.primary}
+                labelStyle={styles.buttonText}
+                mode="contained"
+                onPress={handleSubmit}
+                style={styles.button}
+              >
+                Login
+              </Button>
+            </>
+          )}
+        </Formik>
+        <Button
+          mode="text"
+          onPress={() => navigation.navigate("Register")}
+          style={styles.link}
+          textColor={theme.colors.secondary}
+        >
+          Don’t have an account? Register
+        </Button>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

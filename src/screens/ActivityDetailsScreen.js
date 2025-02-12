@@ -6,8 +6,15 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  View,
 } from "react-native";
-import { Button, HelperText, TextInput } from "react-native-paper";
+import {
+  Button,
+  HelperText,
+  IconButton,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import * as Yup from "yup";
 import { addActivity, editActivity } from "../../services/activityServices";
 import AppPicker from "../components/AppPicker";
@@ -135,11 +142,27 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignSelf: "flex-start",
+          alignItems: "center",
+        }}
+      >
+        <IconButton
+          icon="chevron-left"
+          size={40}
+          onPress={() => navigation.goBack()}
+        />
+        <Text variant="headlineSmall">
+          {isEditMode ? "Edit " : "Add "}Activity
+        </Text>
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
-          contentContainerStyle={{ padding: 20 }}
+          contentContainerStyle={{ paddingHorizontal: 20 }}
           keyboardShouldPersistTaps="handled"
         >
           <Formik
