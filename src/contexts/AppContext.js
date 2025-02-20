@@ -6,6 +6,7 @@ const initialState = {
   fleet: [],
   categories: [],
   activities: [],
+  settings: null,
 };
 
 const AppContext = createContext();
@@ -20,4 +21,4 @@ const AppStateProvider = ({ children }) => {
   );
 };
 
-export { AppContext, AppStateProvider };
+export { AppContext, AppStateProvider, initialState };

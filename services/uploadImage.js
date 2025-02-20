@@ -13,12 +13,12 @@ const uploadImage = async (photo) => {
     type: `image/${fileType}`,
     name: filename,
   });
-  data.append("upload_preset", process.env.UPLOAD_PRESET);
-  data.append("cloud_name", process.env.CLOUD_NAME);
+  data.append("upload_preset", UPLOAD_PRESET);
+  data.append("cloud_name", CLOUD_NAME);
 
   try {
     const res = await axios.post(
-      `https://api.cloudinary.com/v1_1/${process.env.CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
       data,
       {
         headers: {

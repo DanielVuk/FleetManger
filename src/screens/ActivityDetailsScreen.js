@@ -42,6 +42,7 @@ const ActivityDetailsScreen = ({ route, navigation }) => {
         "mileage-valid",
         "Mileage cannot be less than the last recorded mileage",
         (value, context) => {
+          if (isEditMode) return true;
           const { vehicle } = context.parent;
           if (vehicle && vehicle.value) {
             const lastMileage = getCurrentMileage(vehicle.value, state);

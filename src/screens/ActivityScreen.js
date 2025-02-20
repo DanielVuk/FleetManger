@@ -35,9 +35,11 @@ const ActivityScreen = () => {
       [
         {
           text: "Cancel",
+          style: "cancel",
         },
         {
           text: "Confirm",
+          style: "destructive",
           onPress: async () => {
             try {
               setState({ ...state, loading: true });

@@ -163,11 +163,9 @@ export default function HomeScreen() {
                 data={pieData}
                 centerLabelComponent={() => {
                   return (
-                    <Text style={{ fontSize: 20 }}>
-                      {totalExpense > 0
-                        ? ((totalIncome / totalExpense) * 100).toFixed(0)
-                        : 100}
-                      %
+                    <Text style={{ textAlign: "center" }}>
+                      Activities:{"\n"}
+                      {state.activities.length}
                     </Text>
                   );
                 }}

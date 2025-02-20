@@ -18,6 +18,7 @@ import { getUserActivities } from "../../services/activityServices.js";
 import { loginUser } from "../../services/auth.js";
 import { getUserCategories } from "../../services/categoryServices.js";
 import { getUserFleet } from "../../services/fleetServices.js";
+import { getUserSettings } from "../../services/settingsServices.js";
 import storage from "../../services/storage.js";
 import { AppContext } from "../contexts/AppContext.js";
 import { NotificationContext } from "../contexts/NotificationContext.js";
@@ -42,12 +43,15 @@ const LoginScreen = ({ navigation }) => {
       const fleet = await getUserFleet(result.data.localId);
       const categories = await getUserCategories(result.data.localId);
       const activities = await getUserActivities(result.data.localId);
+      const settings = await getUserSettings(result.data.localId);
+
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
-        fleet: fleet,
-        categories: categories,
-        activities: activities,
+        fleet,
+        categories,
+        activities,
+        settings,
         loading: false,
       });
     } catch (error) {

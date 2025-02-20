@@ -4,7 +4,7 @@ import { BASE_URL } from "@env";
 
 const addCategory = async (category) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/categories.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/categories.json?auth=${token}`;
 
   try {
     const categories = await getUserCategories(category.userId);
@@ -27,7 +27,7 @@ const addCategory = async (category) => {
 
 const deleteCategory = async (categoryId) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/categories/${categoryId}.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/categories/${categoryId}.json?auth=${token}`;
 
   try {
     return await axios.delete(endpoint);
@@ -39,7 +39,7 @@ const deleteCategory = async (categoryId) => {
 const editCategory = async (category) => {
   const { id, ...categoryData } = category;
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/categories/${id}.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/categories/${id}.json?auth=${token}`;
 
   try {
     return await axios.put(endpoint, categoryData);
@@ -50,7 +50,7 @@ const editCategory = async (category) => {
 
 const getUserCategories = async (userId) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/categories.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
+  const endpoint = `${BASE_URL}/categories.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
   try {
     let result = await axios.get(endpoint);
 

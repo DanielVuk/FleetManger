@@ -15,6 +15,7 @@ import {
 } from "react-native-paper";
 import * as Yup from "yup";
 import { registerUser } from "../../services/auth";
+import { addSettings } from "../../services/settingsServices.js";
 import storage from "../../services/storage.js";
 import { AppContext } from "../contexts/AppContext.js";
 import { NotificationContext } from "../contexts/NotificationContext.js";
@@ -33,18 +34,23 @@ const RegisterScreen = ({ navigation }) => {
   const [state, setState] = useContext(AppContext);
   const { showNotification } = useContext(NotificationContext);
 
-  console.log(" REGISTER STATE: ", state);
-
   const handleRegister = async ({ email, password }) => {
     try {
       setState({ ...state, loading: true });
-      let result = await registerUser(email, password);
 
+      let result = await registerUser(email, password);
       storage.storeToken(result.data.idToken);
+
+      let res = await addSettings({
+        kmReminder: 2000,
+        timeReminder: 7,
+        userId: result.data.localId,
+      });
 
       setState({
         ...state,
         user: { id: result.data.localId, email: result.data.email },
+        settings: { ...res },
         loading: false,
       });
 

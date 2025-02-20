@@ -1,8 +1,5 @@
 import { getCurrentMileage } from "./getCurrentMileage";
 
-const MILEAGE_THRESHOLD = 2000;
-const TIME_THRESHOLD = 7;
-
 export const getReminders = (vehicle, state, upcomingOnly = false) => {
   if (!vehicle.reminders?.length) return [];
 
@@ -31,7 +28,7 @@ export const getReminders = (vehicle, state, upcomingOnly = false) => {
       const mileageDifference = currentMileage - lastCategoryMileage;
       const remainingMileage = mileageInterval - mileageDifference;
 
-      if (!upcomingOnly || remainingMileage <= MILEAGE_THRESHOLD) {
+      if (!upcomingOnly || remainingMileage <= state.settings.kmReminder) {
         reminderMessages.push(
           remainingMileage >= 0
             ? `${category.name} is due within ${remainingMileage} km.`
@@ -47,7 +44,7 @@ export const getReminders = (vehicle, state, upcomingOnly = false) => {
       );
       const remainingTime = timeInterval - daysSinceLastService;
 
-      if (!upcomingOnly || remainingTime <= TIME_THRESHOLD) {
+      if (!upcomingOnly || remainingTime <= state.settings.timeReminder) {
         reminderMessages.push(
           remainingTime >= 0
             ? `${category.name} is due in ${remainingTime} days.`

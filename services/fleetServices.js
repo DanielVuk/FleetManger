@@ -4,7 +4,7 @@ import { BASE_URL } from "@env";
 
 const addVehicle = async (vehicle) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/fleet.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/fleet.json?auth=${token}`;
 
   try {
     const response = await axios.post(endpoint, {
@@ -19,7 +19,7 @@ const addVehicle = async (vehicle) => {
 
 const deleteVehicle = async (vehicleId) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/fleet/${vehicleId}.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/fleet/${vehicleId}.json?auth=${token}`;
   try {
     return await axios.delete(endpoint);
   } catch (error) {
@@ -30,7 +30,7 @@ const deleteVehicle = async (vehicleId) => {
 const editVehicle = async (vehicle) => {
   const { id, ...vehicleData } = vehicle;
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/fleet/${id}.json?auth=${token}`;
+  const endpoint = `${BASE_URL}/fleet/${id}.json?auth=${token}`;
 
   try {
     return await axios.put(endpoint, vehicleData);
@@ -41,7 +41,7 @@ const editVehicle = async (vehicle) => {
 
 const getUserFleet = async (userId) => {
   const token = await storage.getToken();
-  const endpoint = `${process.env.BASE_URL}/fleet.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
+  const endpoint = `${BASE_URL}/fleet.json?orderBy="userId"&equalTo="${userId}"&auth=${token}&print=pretty`;
   try {
     let result = await axios.get(endpoint);
 

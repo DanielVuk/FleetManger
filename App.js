@@ -12,6 +12,7 @@ import { AppContext } from "./src/contexts/AppContext";
 import { NotificationContext } from "./src/contexts/NotificationContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 import AuthNavigator from "./src/navigation/AuthNavigator";
+import { getUserSettings } from "./services/settingsServices";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -35,16 +36,19 @@ export default function App() {
       const fleet = await getUserFleet(user.id);
       const categories = await getUserCategories(user.id);
       const activities = await getUserActivities(user.id);
+      const settings = await getUserSettings(user.id);
       // console.log("USER  => ", user);
       // console.log("FLEET  => ", fleet);
       // console.log("CATEGORIES  => ", categories);
       // console.log("ACTIVITIES  => ", activities);
+      // console.log("SETTINGS  => ", settings);
       setState((prevState) => ({
         ...prevState,
         user,
         fleet,
         categories,
         activities,
+        settings,
       }));
     } catch (error) {
       console.error("Failed to retrieve user:", error);

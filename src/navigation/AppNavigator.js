@@ -8,6 +8,7 @@ import ActivityScreen from "../screens/ActivityScreen";
 import CategoryDetailsScreen from "../screens/CategoryDetailsScreen";
 import FleetScreen from "../screens/FleetScreen";
 import HomeScreen from "../screens/HomeScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 import VehicleDetailsScreen from "../screens/VehicleDetailsScreen";
 
 const Tab = createBottomTabNavigator();
@@ -66,7 +67,11 @@ const AppNavigator = () => (
       component={HomeNavigator}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons color={color} name="account" size={size} />
+          <MaterialCommunityIcons
+            color={color}
+            name="home-account"
+            size={size}
+          />
         ),
       }}
     />
@@ -92,7 +97,15 @@ const AppNavigator = () => (
         ),
       }}
     />
+    <Tab.Screen
+      name="Profile"
+      component={ProfileScreen}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons color={color} name="account" size={size} />
+        ),
+      }}
+    />
   </Tab.Navigator>
 );
-
 export default AppNavigator;
