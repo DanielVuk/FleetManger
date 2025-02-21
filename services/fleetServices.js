@@ -59,4 +59,22 @@ const getUserFleet = async (userId) => {
   }
 };
 
-export { addVehicle, deleteVehicle, getUserFleet, editVehicle };
+const deleteUserFleet = async (userId) => {
+  try {
+    const fleet = await getUserFleet(userId);
+
+    const deletePromises = fleet.map((vehicle) => deleteVehicle(vehicle.id));
+
+    await Promise.all(deletePromises);
+  } catch (error) {
+    throw new Error("Failed to delete all vehicles: " + error.message);
+  }
+};
+
+export {
+  addVehicle,
+  deleteVehicle,
+  getUserFleet,
+  editVehicle,
+  deleteUserFleet,
+};

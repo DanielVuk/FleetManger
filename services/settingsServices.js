@@ -50,4 +50,15 @@ const updateSettings = async (settings) => {
   }
 };
 
-export { addSettings, updateSettings, getUserSettings };
+const deleteSetting = async (settingId) => {
+  const token = await storage.getToken();
+  const endpoint = `${BASE_URL}/settings/${settingId}.json?auth=${token}`;
+
+  try {
+    await axios.delete(endpoint);
+  } catch (error) {
+    throw new Error("Failed to delete setting: " + error.message);
+  }
+};
+
+export { addSettings, updateSettings, getUserSettings, deleteSetting };

@@ -8,16 +8,16 @@ import {
   View,
 } from "react-native";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
-import storage from "../../services/storage";
-import { AppContext, initialState } from "../contexts/AppContext";
 import { deleteUser } from "../../services/auth";
 import { updateSettings } from "../../services/settingsServices";
+import storage from "../../services/storage";
+import { AppContext, initialState } from "../contexts/AppContext";
+import { NotificationContext } from "../contexts/NotificationContext";
 
 const ProfileScreen = () => {
   const [state, setState] = useContext(AppContext);
+  const { showNotification } = useContext(NotificationContext);
   const theme = useTheme();
-
-  console.log("STATE: ", state);
 
   const [kmReminder, setKmReminder] = useState(
     state.settings.kmReminder?.toString()
@@ -42,15 +42,21 @@ const ProfileScreen = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              await deleteUser();
+              setState({ ...state, loading: true });
+
+              await deleteUser(state.user.id, state.settings.id);
               await storage.removeToken();
               setState(initialState);
-              Alert.alert(
-                "Account deleted",
+
+              showNotification(
+                "success",
                 "Your account has been successfully deleted."
               );
             } catch (error) {
-              Alert.alert("Error", error);
+              showNotification(
+                "error",
+                "An error occurred while deleting the account. Please try again."
+              );
             }
           },
         },
@@ -60,6 +66,7 @@ const ProfileScreen = () => {
 
   const handleSaveSettings = async () => {
     try {
+      setState({ ...state, loading: true });
       await updateSettings({
         id: state.settings.id,
         userId: state.user.id,
@@ -72,8 +79,14 @@ const ProfileScreen = () => {
         settings: { ...prevState.settings, kmReminder, timeReminder },
         loading: false,
       }));
-    } catch (error) {}
-    Alert.alert("Settings saved", "Your settings have been updated.");
+
+      showNotification("success", "Your settings have been updated.");
+    } catch (error) {
+      showNotification(
+        "error",
+        "An error occurred while updating settings. Please try again."
+      );
+    }
   };
 
   return (

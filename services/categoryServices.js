@@ -70,4 +70,22 @@ const getUserCategories = async (userId) => {
   }
 };
 
-export { addCategory, deleteCategory, editCategory, getUserCategories };
+const deleteUserCategories = async (userId) => {
+  try {
+    const categories = await getUserCategories(userId);
+
+    const deletePromises = categories.map((c) => deleteCategory(c.id));
+
+    await Promise.all(deletePromises);
+  } catch (error) {
+    throw new Error("Failed to delete all categories: " + error.message);
+  }
+};
+
+export {
+  addCategory,
+  deleteCategory,
+  editCategory,
+  getUserCategories,
+  deleteUserCategories,
+};

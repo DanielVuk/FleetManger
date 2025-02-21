@@ -1,6 +1,10 @@
 import axios from "axios";
 import { API_KEY } from "@env";
 import storage from "./storage";
+import { deleteUserFleet } from "./fleetServices";
+import { deleteUserCategories } from "./categoryServices";
+import { deleteSetting, deleteUserSettings } from "./settingsServices";
+import { deleteUserActivities } from "./activityServices";
 
 const registerUser = async (email, password) => {
   const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
@@ -31,8 +35,13 @@ const getUser = async (idToken) => {
   return { email, id: localId };
 };
 
-const deleteUser = async () => {
+const deleteUser = async (userId, settingId) => {
   const token = await storage.getToken();
+
+  await deleteUserFleet(userId);
+  await deleteUserCategories(userId);
+  await deleteUserActivities(userId);
+  await deleteSetting(settingId);
 
   const endpoint = `https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${API_KEY}`;
 
